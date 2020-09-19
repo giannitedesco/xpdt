@@ -1,0 +1,19 @@
+# perf
+/perf.data
+/perf.data.old
+
+# python
+__pycache__
+*.pyc
+/.mypy_cache
+/build
+/dist
+/MANIFEST
+
+# Text editors
+.*.swp
+
+/*.egg-info
+
+/bench/bin
+/bench/obj

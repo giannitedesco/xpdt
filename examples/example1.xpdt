@@ -1,0 +1,24 @@
+## This is a comment
+
+type timestamp {
+	u32	tv_sec;
+	u32	tv_nsec;
+};
+
+type point {
+	s32	x;
+	s32	y;
+	s32	z;
+};
+
+type timespan {
+	timestamp begin;
+	timestamp end;
+};
+
+type item {
+	u32		id; # User id
+	blob		first_name; # given name
+	blob		surname; # surname
+	timestamp	last_login;
+};
