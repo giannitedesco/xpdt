@@ -10,6 +10,9 @@ __pycache__
 /dist
 /MANIFEST
 
+/.coverage
+/htmlcov
+
 # Text editors
 .*.swp
 

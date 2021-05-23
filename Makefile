@@ -11,6 +11,7 @@ all:
 clean:
 	./setup.py clean
 	rm -rf build dist *.egg-info
+	rm -rf .coverage htmlcov/
 	find . -regex '^.*\(__pycache__\|\.py[co]\)$$' -delete
 
 
