@@ -55,27 +55,27 @@ class Parser:
 
     @state
     def _initial(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @state
     def _type_name(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @state
     def _type_start(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @state
     def _member_type(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @state
     def _member_name(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @state
     def _member_end(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @_initial.on('semicolon')
     def _initial_semi(self, tok: Lexeme) -> Optional[State[Parser]]:
@@ -186,8 +186,8 @@ class Parser:
         return cls(gen())
 
 
-def parse(s: str) -> Generator[StructDecl, None, None]:
-    yield from Parser.fromstring(s)
+def parse(s: str, file: str = '<string>') -> Generator[StructDecl, None, None]:
+    yield from Parser.fromstring(s, file)
 
 
 def parse_file(p: Path) -> Generator[StructDecl, None, None]:
