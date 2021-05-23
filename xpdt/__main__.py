@@ -30,7 +30,7 @@ def gen_py(ns: NameSpace, base: Path, module_name: str) -> None:
 
 
 def main() -> None:
-    opts = ArgumentParser(description='xpdt: eXPedited Data Transfer')
+    opts = ArgumentParser(description='xpdt: eXPeditious Data Transfer')
     opts.add_argument('--verbose', '-v',
                       action='count',
                       default=0,
