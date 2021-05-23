@@ -1,5 +1,5 @@
 from typing import (
-    Optional, Tuple, Dict, NamedTuple, Type, TextIO, Iterable, Iterator, Any
+    Optional, Tuple, Dict, TextIO, Iterable, Iterator, Any
 )
 from types import SimpleNamespace
 
@@ -52,19 +52,6 @@ class NameSpace:
 
     def __len__(self) -> int:
         return len(self._structs)
-
-    def _gen_dynamic_clsname(self, s: StructDef) -> str:
-        if self._name:
-            return f'{self._name}.{s.name}'
-        else:
-            return s.name
-
-    def _gen_storage_class(self, s: StructDef) -> Type[NamedTuple]:
-        sig = [(m.name, m.typedef.type.pytype) for m in s]
-
-        # This class is a tuple for storing the data in each instance
-        # mypy insists on literals, but sorry, no can do...
-        return NamedTuple(s.name, sig)  # type: ignore
 
     @property
     def python_code(self) -> str:
