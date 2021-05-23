@@ -33,7 +33,8 @@ class ParseError(Exception):
     def __init__(self,
                  msg: str,
                  /,
-                 tok: Optional[Token] = None):
+                 tok: Optional[Token] = None,
+                 ) -> None:
         super().__init__(msg)
         self.tok = tok
 
@@ -49,27 +50,26 @@ _T = TypeVar('_T')
 
 
 class State(Generic[_T]):
-    def on(self: _T,
-           *args: str,
-           ) -> Callable[..., Callable[[_T, Token], Optional[State[_T]]]]: ...
+    def on(self: _T, *args: str) -> Callable[..., StateFunc[_T]]: ...
+    def __call__(self: _T, tok: Token) -> NextState[_T]: ...
 
-    def __call__(self: _T, tok: Token) -> Optional[State[_T]]: ...
+
+NextState = Optional[State[_T]]
+StateFunc = Callable[[_T, Token], NextState[_T]]
 
 
 def state(func: Callable[[_T], None]) -> State[_T]:
-    registry: Dict[Any, Callable[[_T, Token], Optional[State[_T]]]] = {}
+    registry: Dict[Any, StateFunc[_T]] = {}
 
-    def on(*args: str,
-           ) -> Callable[..., Callable[[_T, Token], Optional[State[_T]]]]:
-        def decorator(func: Callable[[_T, Token], Optional[State[_T]]],
-                      ) -> Callable[[_T, Token], Optional[State[_T]]]:
+    def on(*args: str) -> Callable[..., StateFunc[_T]]:
+        def decorator(func: StateFunc[_T]) -> StateFunc[_T]:
             for tok_type in args:
                 registry[tok_type] = func
             return func
         return decorator
 
     @wraps(func)
-    def wrapper(self: _T, tok: Token) -> Optional[State[_T]]:
+    def wrapper(self: _T, tok: Token) -> NextState[_T]:
         tok_type = tok.tok_type
         try:
             f = registry[tok_type]
