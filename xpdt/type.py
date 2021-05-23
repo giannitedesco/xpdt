@@ -7,7 +7,7 @@ from struct import calcsize
 
 
 if TYPE_CHECKING:
-    from .member import MemberDef
+    from .member import MemberDef  # pragma: no cover
 
 
 __all__ = (
@@ -57,22 +57,22 @@ class XpdtType(ABC):
     @property
     @abstractmethod
     def struct_fmt(self) -> str:
-        pass
+        pass  # pragma: no cover
 
     @property
     @abstractmethod
     def ctype(self) -> str:
-        pass
+        pass  # pragma: no cover
 
     @property
     @abstractmethod
     def pytype(self) -> str:
-        pass
+        pass  # pragma: no cover
 
     @property
     @abstractmethod
     def needs_vbuf(self) -> bool:
-        pass
+        pass  # pragma: no cover
 
     @property
     def size(self) -> int:

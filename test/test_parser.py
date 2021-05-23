@@ -43,6 +43,13 @@ class Test_Parser(unittest.TestCase):
         try:
             decls = list(parse('type x {\nflibble', file='flibble'))
         except ParseError as e:
+            buf = str(e)
+            self.assertTrue('flibble:2' in buf)
+
+    def test_parse_error_fields(self):
+        try:
+            decls = list(parse('type x {\nflibble', file='flibble'))
+        except ParseError as e:
             self.assertEqual(e.tok.file, 'flibble')
             self.assertEqual(e.tok.line, 2)
 
