@@ -57,7 +57,7 @@ target.
 Target languages are implemented purely as `jinja2` templates.
 
 ## Serialization format
-The serialization format for fixed-length objects is simly a packed C struct.
+The serialization format for fixed-length objects is simply a packed C struct.
 
 For any object which contains `blob` type fields:
 - a 32bit unsigned record length is prepended to the struct
