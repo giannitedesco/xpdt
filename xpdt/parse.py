@@ -24,6 +24,7 @@ class NamespaceItem(NamedTuple):
     ns: Dict[str, StructDecl]
 
 
+# These are the stack items for the for LR parser stack
 Item = Union[
     MemberTypeItem,
     MemberNameItem,
@@ -53,29 +54,70 @@ class Parser:
     def stacktop(self) -> Item:
         return self._stack[-1]
 
+    def __iter__(self) -> Generator[StructDecl, None, None]:
+        self._stack.clear()
+        self.push(NamespaceItem({}))
+
+        gen = self._tokens
+        st: Optional[State[Parser]] = self._initial
+
+        while st is not None:
+            try:
+                tok = next(gen)
+            except StopIteration:
+                raise ParseError('Unexpected end of token-stream')
+
+            st = st(tok)
+
+        ns_item = self.pop()
+        assert isinstance(ns_item, NamespaceItem)
+
+        yield from ns_item.ns.values()
+
+    @classmethod
+    def fromstring(cls, s: str, file: str = '<string>') -> Parser:
+        return cls(lex(s, file=file))
+
+    @classmethod
+    def fromfile(cls, p: Path) -> Parser:
+        """
+        Loads the file, line at a time.
+        """
+
+        def gen() -> Generator[Lexeme, None, None]:
+            file = str(p)
+            with p.open() as f:
+                lno = 1
+                for line in f:
+                    yield from lex(line, file, lno, False)
+                    lno += 1
+            yield Lexeme('eof', '$', file, lno)
+        return cls(gen())
+
+    # Define our states
     @state
-    def _initial(self) -> None:
-        pass  # pragma: no cover
+    def _initial(self) -> None: ...
 
     @state
-    def _type_name(self) -> None:
-        pass  # pragma: no cover
+    def _type_name(self) -> None: ...
 
     @state
-    def _type_start(self) -> None:
-        pass  # pragma: no cover
+    def _type_start(self) -> None: ...
 
     @state
-    def _member_type(self) -> None:
-        pass  # pragma: no cover
+    def _member_type(self) -> None: ...
 
     @state
-    def _member_name(self) -> None:
-        pass  # pragma: no cover
+    def _member_name(self) -> None: ...
 
     @state
-    def _member_end(self) -> None:
-        pass  # pragma: no cover
+    def _member_end(self) -> None: ...
+
+    # These methods encode what would be the contents of the ACTION/GOTO tables
+    # if this were a generated table-based parser.
+    #  - The return values define the result of the GOTO table lookup
+    #  - The method body either performs a shift or a reduction. Some shifts
+    #    are omitted if they are irrelevant to the semantic analysis
 
     @_initial.on('semicolon')
     def _initial_semi(self, tok: Lexeme) -> Optional[State[Parser]]:
@@ -144,46 +186,6 @@ class Parser:
 
         ns.ns[t.struct_name] = t
         return self._initial
-
-    def __iter__(self) -> Generator[StructDecl, None, None]:
-        self._stack.clear()
-        self.push(NamespaceItem({}))
-
-        gen = self._tokens
-        st: Optional[State[Parser]] = self._initial
-
-        while st is not None:
-            try:
-                tok = next(gen)
-            except StopIteration:
-                raise ParseError('Unexpected end of token-stream')
-
-            st = st(tok)
-
-        ns_item = self.pop()
-        assert isinstance(ns_item, NamespaceItem)
-
-        yield from ns_item.ns.values()
-
-    @classmethod
-    def fromstring(cls, s: str, file: str = '<string>') -> Parser:
-        return cls(lex(s, file=file))
-
-    @classmethod
-    def fromfile(cls, p: Path) -> Parser:
-        """
-        Loads the file, line at a time.
-        """
-
-        def gen() -> Generator[Lexeme, None, None]:
-            file = str(p)
-            with p.open() as f:
-                lno = 1
-                for line in f:
-                    yield from lex(line, file, lno, False)
-                    lno += 1
-            yield Lexeme('eof', '$', file, lno)
-        return cls(gen())
 
 
 def parse(s: str, file: str = '<string>') -> Generator[StructDecl, None, None]:
