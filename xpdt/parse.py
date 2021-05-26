@@ -99,7 +99,7 @@ class Parser:
     def _initial(self) -> None: ...
 
     @state
-    def _type_name(self) -> None: ...
+    def _struct_name(self) -> None: ...
 
     @state
     def _type_start(self) -> None: ...
@@ -129,18 +129,18 @@ class Parser:
         # accept
         return None
 
-    @_initial.on('kw_type')
-    def _initial_type_keyword(self, tok: Lexeme) -> Optional[State[Parser]]:
+    @_initial.on('kw_struct')
+    def _initial_struct_keyword(self, tok: Lexeme) -> Optional[State[Parser]]:
         # shift
-        return self._type_name
+        return self._struct_name
 
     @_type_start.on('lbrace')
     def _type_start_lbrace(self, tok: Lexeme) -> Optional[State[Parser]]:
         # shift
         return self._member_type
 
-    @_type_name.on('identifier')
-    def _type_name_identifier(self, tok: Lexeme) -> Optional[State[Parser]]:
+    @_struct_name.on('identifier')
+    def _struct_name_identifier(self, tok: Lexeme) -> Optional[State[Parser]]:
         # shift
         self.push(StructDecl(tok.val, list()))
         return self._type_start

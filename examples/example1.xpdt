@@ -1,22 +1,22 @@
 ## This is a comment
 
-type timestamp {
+struct timestamp {
 	u32	tv_sec;
 	u32	tv_nsec;
 };
 
-type point {
+struct point {
 	s32	x;
 	s32	y;
 	s32	z;
 };
 
-type timespan {
+struct timespan {
 	timestamp begin;
 	timestamp end;
 };
 
-type item {
+struct item {
 	u32		id; # User id
 	blob		first_name; # given name
 	blob		surname; # surname
