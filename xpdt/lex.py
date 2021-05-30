@@ -9,7 +9,7 @@ __all__ = (
 
 
 _re = re.compile('|'.join((
-    r'(?P<kw_type>type)',
+    r'(?P<kw_type>\btype\b)',
     r'(?P<identifier>[a-zA-Z_][a-zA-Z0-9_]*)',
     r'(?P<num>[0-9][0-9]*)',
     r'(?P<lbrace>\{)',
