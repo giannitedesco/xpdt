@@ -56,23 +56,19 @@ class ConstructElement(NamedTuple):
 class XpdtType(ABC):
     @property
     @abstractmethod
-    def struct_fmt(self) -> str:
-        pass  # pragma: no cover
+    def struct_fmt(self) -> str: ...
 
     @property
     @abstractmethod
-    def ctype(self) -> str:
-        pass  # pragma: no cover
+    def ctype(self) -> str: ...
 
     @property
     @abstractmethod
-    def pytype(self) -> str:
-        pass  # pragma: no cover
+    def pytype(self) -> str: ...
 
     @property
     @abstractmethod
-    def needs_vbuf(self) -> bool:
-        pass  # pragma: no cover
+    def needs_vbuf(self) -> bool: ...
 
     @property
     def size(self) -> int:
