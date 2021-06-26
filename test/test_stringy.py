@@ -11,6 +11,8 @@ class Test_Stringy(unittest.TestCase):
                     members=[
                         MemberDecl('id', 'u32'),
                         MemberDecl('name', 'bytes'),
+                        MemberDecl('_pad0', 'u32'),
+                        MemberDecl('_pad1', 'bytes'),
                     ],
                 ),
                 StructDecl(
@@ -19,6 +21,9 @@ class Test_Stringy(unittest.TestCase):
                         MemberDecl('id', 'u32'),
                         MemberDecl('a', 'Item'),
                         MemberDecl('b', 'Item'),
+                        MemberDecl('_pad0', 'u32'),
+                        MemberDecl('_pad1', 'bytes'),
+                        MemberDecl('_pad2', 'Item'),
                     ],
                 ),
             ),

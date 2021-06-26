@@ -32,3 +32,7 @@ class MemberDef(NamedTuple):
     @property
     def is_scalar(self) -> bool:
         return self.typedef.type.is_scalar
+
+    @property
+    def is_reserved(self) -> bool:
+        return self.name.startswith('_')

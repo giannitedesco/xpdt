@@ -1,4 +1,4 @@
-from typing import Tuple, Generator, Iterator
+from typing import Tuple, Generator, Iterator, Dict
 
 from .dupes import dupes
 
@@ -18,6 +18,10 @@ class StructDef:
         '_membs',
         '_vmembs',
     )
+
+    _name: str
+    _membs: Dict[str, MemberDef]
+    _vmembs: Tuple[MemberDef, ...]
 
     def __init__(self, name: str, members: Tuple[MemberDef, ...]):
         d = dupes((m.name for m in members))
@@ -50,6 +54,14 @@ class StructDef:
         return self._vmembs
 
     @property
+    def non_reserved_vbuf_members(self) -> Generator[MemberDef, None, None]:
+        return (m for m in self._vmembs if not m.is_reserved)
+
+    @property
+    def non_reserved_members(self) -> Generator[MemberDef, None, None]:
+        yield from (m for m in self._membs.values() if not m.is_reserved)
+
+    @property
     def needs_vbuf(self) -> bool:
         return any((t.needs_vbuf for t in self.member_types))
 
@@ -64,9 +76,16 @@ class StructDef:
                 if elem.action == ConstructAction.MEMBER)
 
     @property
+    def all_non_reserved_members(self,
+                                 ) -> Generator[ConstructElement, None, None]:
+        return (elem for elem in
+                self.construct_recursive(include_reserved=False)
+                if elem.action == ConstructAction.MEMBER)
+
+    @property
     def all_vbuf_members(self) -> Generator[ConstructElement, None, None]:
         return (elem for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER
                 and elem.member.type.needs_vbuf)
 
@@ -79,45 +98,59 @@ class StructDef:
     @property
     def python_var_names(self) -> Generator[str, None, None]:
         return (elem.python_var_name for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER)
 
     @property
     def c_named_initializers(self) -> Generator[str, None, None]:
         return (elem.c_named_initializer for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER)
 
     @property
     def c_named_initializers_x1v(self) -> Generator[str, None, None]:
         return (elem.c_named_initializer for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER
                 and elem.member.type.needs_vbuf)
 
     @property
     def python_vbuf_names(self) -> Generator[str, None, None]:
         return (elem.python_var_name for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER
                 and elem.member.type.needs_vbuf)
 
     def construct_recursive(self,
                             path: Tuple[MemberDef, ...] = (),
+                            include_reserved: bool = True,
                             ) -> Generator[ConstructElement, None, None]:
         for m in self:
+            if not include_reserved and m.is_reserved:
+                continue
+
             if m.is_scalar:
                 yield ConstructElement(ConstructAction.MEMBER, m, path)
             else:
                 stype = m.type
                 new_path = path + (m,)
                 yield ConstructElement(ConstructAction.AGG_PUSH, m, path)
-                yield from stype.construct_recursive(new_path)
+                yield from stype.construct_recursive(
+                    new_path,
+                    include_reserved=include_reserved,
+                )
                 yield ConstructElement(ConstructAction.AGG_POP, m, path)
 
     @property
     def struct_fmt(self) -> str:
-        return ''.join((t.struct_fmt for t in self.member_types))
+        def fmt(m: MemberDef) -> str:
+            t = m.typedef.type
+            if m.is_reserved:
+                return f'{t.size}x'
+            else:
+                return t.struct_fmt
+
+        return ''.join(map(fmt, self))
 
     def __getitem__(self, k: str) -> MemberDef:
         return self._membs[k]
@@ -182,8 +215,12 @@ class StructType(XpdtType):
 
     def construct_recursive(self,
                             path: Tuple[MemberDef, ...] = (),
+                            include_reserved: bool = True,
                             ) -> Generator[ConstructElement, None, None]:
-        yield from self._struct.construct_recursive(path)
+        yield from self._struct.construct_recursive(
+            path,
+            include_reserved=include_reserved,
+        )
 
     @property
     def scalar_members(self) -> Generator[Tuple[str, ...], None, None]:

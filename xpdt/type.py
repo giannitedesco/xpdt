@@ -52,6 +52,10 @@ class ConstructElement(NamedTuple):
         # FIXME: this is not prefix-free
         return f'_{"_".join(self.full_path_names)}'
 
+    @property
+    def is_reserved(self) -> bool:
+        return self.member.is_reserved
+
 
 class XpdtType(ABC):
     @property
@@ -83,8 +87,10 @@ class XpdtType(ABC):
         # Only relevant for aggregate types
         raise NotImplementedError
 
-    def construct_recursive(self, path: Tuple[MemberDef, ...] = ()) \
-            -> Generator[ConstructElement, None, None]:
+    def construct_recursive(self,
+                            path: Tuple[MemberDef, ...] = (),
+                            include_reserved: bool = True,
+                            ) -> Generator[ConstructElement, None, None]:
         # Only relevant for aggregate types
         raise NotImplementedError
 

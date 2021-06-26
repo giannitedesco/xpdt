@@ -34,28 +34,28 @@
 
 
 /*#- macro cdecls(struct) -#*/
-/*{struct
+/*{struct.non_reserved_members
 	| map(attribute="const_cdecl")
 	| join(",\n\t\t")}*/
 /*#- endmacro -#*/
 
 
 /*#- macro vbuf_cdecls(struct) -#*/
-/*{struct.vbuf_members
+/*{struct.non_reserved_vbuf_members
 	| map(attribute="const_cdecl")
 	| join(",\n\t\t")}*/
 /*#- endmacro -#*/
 
 
 /*#- macro memb_names(struct) -#*/
-/*{struct
+/*{struct.non_reserved_members
 	| map(attribute="name")
 	| join(",\n\t\t")}*/
 /*#- endmacro -#*/
 
 
 /*#- macro _memb_names(struct) -#*/
-/*{struct
+/*{struct.non_reserved_members
 	| map(attribute="name")
 	| map("prefix", "_")
 	| join(",\n\t\t") }*/
@@ -144,7 +144,7 @@ struct /*{struct.tag}*/ {
 #define /*{init_macro_name(struct)}*/( \
 		/*{_memb_names(struct)|macro}*/) \
 	(/*{struct.ctype}*/){ \
-// for member in struct
+// for member in struct.non_reserved_members
 		./*{member.name}*/ = _/*{member.name}*/, \
 // endfor
 	}
@@ -166,7 +166,7 @@ static inline
 /*{xrec_ctor(struct)}*/(struct /*{struct.tag}*/ obj)
 {
 	return (/*{struct_xrec(struct)}*/){
-// for member in struct
+// for member in struct.non_reserved_members
 // if member.needs_vbuf
 // if member.is_scalar
 		./*{member.name}*/ = obj./*{member.name}*/.len,
@@ -325,7 +325,7 @@ static inline
 /*{struct.ctype}*/ /*{construct(struct)}*/(const /*{struct_xrec(struct)}*/ *rec, const /*{struct_xptrs(struct)}*/ *ptrs)
 {
 	return (/*{struct.ctype}*/){
-// for member in struct
+// for member in struct.non_reserved_members
 // if member.needs_vbuf
 // if member.is_scalar
 		./*{member.name}*/ = xbuf(rec->/*{member.name}*/, ptrs->/*{member.name}*/),

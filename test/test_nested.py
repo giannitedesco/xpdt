@@ -12,6 +12,8 @@ class Test_Nested(unittest.TestCase):
                         MemberDecl('x', 'i32'),
                         MemberDecl('y', 'i32'),
                         MemberDecl('z', 'i32'),
+                        MemberDecl('_pad0', 'i32'),
+                        MemberDecl('_pad1', 'bytes'),
                     ],
                 ),
                 StructDecl(
@@ -19,6 +21,9 @@ class Test_Nested(unittest.TestCase):
                     members=[
                         MemberDecl('id', 'u32'),
                         MemberDecl('pos', 'Point'),
+                        MemberDecl('_pad0', 'u32'),
+                        MemberDecl('_pad1', 'bytes'),
+                        MemberDecl('_pad2', 'Point'),
                     ],
                 ),
             ),

@@ -46,7 +46,7 @@ $$elem.member.type.write_func(get_member(elem.full_path_names))$$
         return b''.join((
             self._pack(
                 tot_len,
-## for e in struct.all_members
+## for e in struct.all_non_reserved_members
 ##   if e.member.type.needs_vbuf
                 $$e.python_var_name$$_len,
 ##   else
@@ -54,7 +54,7 @@ $$elem.member.type.write_func(get_member(elem.full_path_names))$$
 ##   endif
 ## endfor
             ),
-## for e in struct.all_vbuf_members
+## for e in struct.all_vbuf_members | rejectattr("member.is_reserved")
             $$e.python_var_name$$_buf,
 ## endfor
         ))
@@ -77,7 +77,7 @@ $$elem.member.type.write_func(get_member(elem.full_path_names))$$
 ## endfor
         ret = cls(
 ## set vbuf_var = namespace(value=0)
-## for e in struct.construct_recursive()
+## for e in struct.construct_recursive(include_reserved=False)
 $$e.indent('    ', 3)$$$$construct_object(e, vbuf_var)$$
 ## endfor
         )

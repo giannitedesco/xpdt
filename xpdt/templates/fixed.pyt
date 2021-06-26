@@ -29,7 +29,7 @@ $$elem.python_var_name$$,
 ## endfor
         ) = cls._unpack_from(buf, off)
         ret = cls(
-## for e in struct.construct_recursive()
+## for e in struct.construct_recursive(include_reserved=False)
 $$e.indent('    ', 3)$$$$construct_object(e)$$
 ## endfor
         )

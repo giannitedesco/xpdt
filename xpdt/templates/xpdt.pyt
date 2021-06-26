@@ -16,7 +16,7 @@ __all__ = (
 
 
 class _$$struct.name$$_storage(_NamedTuple):
-#% for name, (type_name, type) in struct %#
+#% for name, (type_name, type) in struct.non_reserved_members %#
     $$name$$: $$type.pytype$$
 #% endfor %#
 

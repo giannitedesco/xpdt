@@ -12,6 +12,8 @@ class Test_RoundTrips(unittest.TestCase):
                         MemberDef('x', BaseType.i32),
                         MemberDef('y', BaseType.i32),
                         MemberDef('z', BaseType.i32),
+                        MemberDef('_pad0', BaseType.i32),
+                        MemberDef('_pad1', BaseType.bytes),
                     ),
                 ),
                 StructDef(
@@ -22,6 +24,8 @@ class Test_RoundTrips(unittest.TestCase):
                         MemberDef('first_name', BaseType.utf8),
                         MemberDef('surname', BaseType.utf8),
                         MemberDef('data', BaseType.bytes),
+                        MemberDef('_pad0', BaseType.i32),
+                        MemberDef('_pad1', BaseType.bytes),
                     ),
                 ),
             ),
