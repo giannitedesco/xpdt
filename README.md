@@ -19,18 +19,18 @@ excess of 500 million objects per second (~1.8 nsec per object).
 The xpdt source language looks similar to C struct definitions:
 
 ```
-type timestamp {
+struct timestamp {
 	u32	tv_sec;
 	u32	tv_nsec;
 };
 
-type point {
+struct point {
 	i32	x;
 	i32	y;
 	i32	z;
 };
 
-type line {
+struct line {
 	timestamp	time;
 	point		line_start;
 	point		line_end;
