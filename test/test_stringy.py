@@ -10,7 +10,7 @@ class Test_Stringy(unittest.TestCase):
                     struct_name='Item',
                     members=[
                         MemberDecl('id', 'u32'),
-                        MemberDecl('name', 'blob'),
+                        MemberDecl('name', 'bytes'),
                     ],
                 ),
                 StructDecl(

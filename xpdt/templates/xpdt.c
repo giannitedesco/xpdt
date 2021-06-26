@@ -19,7 +19,7 @@
 
 /*{macros.serialized_struct_decl(struct)}*/
 
-/*{macros.blob_struct_decl(struct)}*/
+/*{macros.vbuf_struct_decl(struct)}*/
 /*# endif #*/
 /*#- endfor -#*/
 

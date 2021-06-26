@@ -21,7 +21,7 @@ class Test_RoundTrips(unittest.TestCase):
                         MemberDef('id', BaseType.u32),
                         MemberDef('first_name', BaseType.utf8),
                         MemberDef('surname', BaseType.utf8),
-                        MemberDef('data', BaseType.blob),
+                        MemberDef('data', BaseType.bytes),
                     ),
                 ),
             ),

@@ -18,7 +18,7 @@ struct timespan {
 
 struct item {
 	u32		id; # User id
-	blob		first_name; # given name
-	blob		surname; # surname
+	bytes		first_name; # given name
+	bytes		surname; # surname
 	timestamp	last_login;
 };

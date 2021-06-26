@@ -126,7 +126,7 @@ struct /*{struct.tag}*/ {
 
 
 
-/*#- macro blob_struct_decl(struct) -#*/
+/*#- macro vbuf_struct_decl(struct) -#*/
 
 /*{struct_xptrs(struct)}*/ {
 // for member in struct.vbuf_members

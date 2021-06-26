@@ -34,12 +34,12 @@ struct line {
 	timestamp	time;
 	point		line_start;
 	point		line_end;
-	blob		comment;
+	bytes		comment;
 };
 ```
 
 Fixed width integer types from 8 to 128 bit are supported, along with the
-`blob` type, which is a variable-length sequence of bytes.
+`bytes` type, which is a variable-length sequence of bytes.
 
 ## Target Languages
 The following target languages are currently supported:
@@ -59,10 +59,10 @@ Target languages are implemented purely as `jinja2` templates.
 ## Serialization format
 The serialization format for fixed-length objects is simply a packed C struct.
 
-For any object which contains `blob` type fields:
+For any object which contains `bytes` type fields:
 - a 32bit unsigned record length is prepended to the struct
-- all `blob` type fields are converted to `u32` and contain the length of the blob
-- all blob contents are appended after the struct in the order in which they appear
+- all `bytes` type fields are converted to `u32` and contain the length of the bytes
+- all bytes contents are appended after the struct in the order in which they appear
 
 For example, following the example above, the serialization would be:
 

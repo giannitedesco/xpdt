@@ -12,7 +12,7 @@ __all__ = (
     'base_types',
 )
 
-Blob = BufType()
+Bytes = BufType()
 Utf8 = Utf8Type()
 xu128 = UuidType()
 UnsignedInt8 = IntegralType(8, False)
@@ -28,7 +28,7 @@ SignedInt64 = IntegralType(64, True)
 class BaseType(TypeDef, Enum):
     __slots__ = ()
 
-    blob = 'blob', Blob
+    bytes = 'bytes', Bytes
     utf8 = 'utf8', Utf8
     u8 = 'u8', UnsignedInt8
     i8 = 'i8', SignedInt8
