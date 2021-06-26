@@ -29,5 +29,7 @@
 /* ==== /*{struct.name}*/ ==== */
 /*{macros.ctors(struct)}*/
 /*{macros.writers(struct)}*/
+// if struct.needs_vbuf
 /*{macros.readers(struct)}*/
+// endif
 /*#- endfor -#*/
