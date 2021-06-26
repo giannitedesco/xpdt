@@ -73,7 +73,7 @@ def main() -> None:
         print(e)
         raise SystemExit(1)
 
-    ns = NameSpace.from_decls(decls, name=None)
+    ns = NameSpace.from_decls(decls, name=module_name)
 
     backends = {
         'c': gen_c,

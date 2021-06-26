@@ -82,6 +82,7 @@ class NameSpace:
     def from_decls(cls,
                    decls: Iterable[StructDecl],
                    name: Optional[str] = None) -> 'NameSpace':
+        this = name if name is not None else '<anon>'
 
         typemap = base_types()
 
@@ -90,7 +91,7 @@ class NameSpace:
             try:
                 member_type = typemap[type_name]
             except KeyError:
-                raise KeyError(f'Type "{type_name}" not known')
+                raise KeyError(f'{this}: Type {type_name!r} not known')
             return MemberDef(
                 decl.member_name,
                 member_type,
@@ -103,7 +104,7 @@ class NameSpace:
                 tuple((define_member(m) for m in decl.members)),
             )
             if name in typemap:
-                raise ValueError(f'Type {name} already defined')
+                raise ValueError(f'{this}: Type {name!r} already defined')
             typemap[name] = TypeDef(name, StructType(struct))
             return struct
 
