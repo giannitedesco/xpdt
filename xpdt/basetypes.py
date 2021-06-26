@@ -28,13 +28,13 @@ class BaseType(TypeDef, Enum):
 
     blob = 'blob', Blob
     u8 = 'u8', UnsignedInt8
-    s8 = 's8', SignedInt8
+    i8 = 'i8', SignedInt8
     u16 = 'u16', UnsignedInt16
-    s16 = 's16', SignedInt16
+    i16 = 'i16', SignedInt16
     u32 = 'u32', UnsignedInt32
-    s32 = 's32', SignedInt32
+    i32 = 'i32', SignedInt32
     u64 = 'u64', UnsignedInt64
-    s64 = 's64', SignedInt64
+    i64 = 'i64', SignedInt64
     u128 = 'u128', xu128
     uuid = 'uuid', xu128
 

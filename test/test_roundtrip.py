@@ -9,9 +9,9 @@ class Test_RoundTrips(unittest.TestCase):
                 StructDef(
                     name='Point',
                     members=(
-                        MemberDef('x', BaseType.s32),
-                        MemberDef('y', BaseType.s32),
-                        MemberDef('z', BaseType.s32),
+                        MemberDef('x', BaseType.i32),
+                        MemberDef('y', BaseType.i32),
+                        MemberDef('z', BaseType.i32),
                     ),
                 ),
                 StructDef(

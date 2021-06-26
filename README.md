@@ -25,9 +25,9 @@ type timestamp {
 };
 
 type point {
-	s32	x;
-	s32	y;
-	s32	z;
+	i32	x;
+	i32	y;
+	i32	z;
 };
 
 type line {
@@ -70,12 +70,12 @@ For example, following the example above, the serialization would be:
 u32 tot_len # = 41
 u32 time.tv_sec
 u32 time.tv_usec
-s32 line_start.x
-s32 line_start.y
-s32 line_start.z
-s32 line_end.x
-s32 line_end.y
-s32 line_end.z
+i32 line_start.x
+i32 line_start.y
+i32 line_start.z
+i32 line_end.x
+i32 line_end.y
+i32 line_end.z
 u32 comment # = 5
 u8 'H'
 u8 'e'

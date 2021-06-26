@@ -9,9 +9,9 @@ class Test_Nested(unittest.TestCase):
                 StructDecl(
                     struct_name='Point',
                     members=[
-                        MemberDecl('x', 's32'),
-                        MemberDecl('y', 's32'),
-                        MemberDecl('z', 's32'),
+                        MemberDecl('x', 'i32'),
+                        MemberDecl('y', 'i32'),
+                        MemberDecl('z', 'i32'),
                     ],
                 ),
                 StructDecl(

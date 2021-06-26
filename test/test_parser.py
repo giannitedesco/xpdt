@@ -9,13 +9,13 @@ _all_fixed = '''
 struct fixed {
     u128 u128;
     u64 u64;
-    s64 s64;
+    i64 i64;
     u32 u32;
-    s32 s32;
+    i32 i32;
     u16 u16;
-    s16 s16;
+    i16 i16;
     u8 u8;
-    s8 s8;
+    i8 i8;
 };
 '''
 
@@ -24,13 +24,13 @@ struct fixed {
     blob blob;
     u128 u128;
     u64 u64;
-    s64 s64;
+    i64 i64;
     u32 u32;
-    s32 s32;
+    i32 i32;
     u16 u16;
-    s16 s16;
+    i16 i16;
     u8 u8;
-    s8 s8;
+    i8 i8;
 };
 '''
 
