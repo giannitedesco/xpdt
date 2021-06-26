@@ -72,7 +72,7 @@ class StructDef:
     @property
     def all_members(self) -> Generator[ConstructElement, None, None]:
         return (elem for elem in
-                self.construct_recursive()
+                self.construct_recursive(include_reserved=False)
                 if elem.action == ConstructAction.MEMBER)
 
     @property

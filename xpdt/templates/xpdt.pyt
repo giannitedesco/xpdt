@@ -5,61 +5,169 @@
 ## import 'fixed.pyt' as x1b
 ## import 'vbuf.pyt' as x1v
 from struct import Struct as _Struct
-from typing import NamedTuple as _NamedTuple, Tuple as _Tuple
+from pathlib import Path as _Path
+from mmap import (
+    mmap as _mmap,
+    PROT_READ as _PROT_READ,
+)
+from typing import (
+    NamedTuple as _NTup,
+    Generator as _G,
+    Callable as _F,
+    Tuple as _Tup,
+    Type as _Typ,
+    TypeVar as _TV,
+    Any as _Any,
+)
 
 __all__ = (
 #% for struct in namespace %#
     '$$struct.name$$',
 #% endfor %#
 )
+
+_T = _TV('_T', bound='_Xpdt')
+
+_vlen_fmt = _Struct('=I')
+_vlen_size = _vlen_fmt.size
+_vlen_unpack_from = _vlen_fmt.unpack_from
+_vlen_pack = _vlen_fmt.pack
+
+
+class _Xpdt:
+    __slots__ = ()
+
+    _unpack_from: _F[[memoryview, int], _Tup[int, ...]]
+    _fmt_size: int
+
+    # These methods are defined in order to allow _Xpdt class to be a
+    # placeholder for any of the below classes. They should never be called
+    # since the derived classes will provide their own implementations.
+    @classmethod
+    def __new__(cls: _Typ[_T], *args: _Any) -> _T:
+        raise NotImplementedError
+
+    def __bytes__(self) -> bytes:
+        raise NotImplementedError
+
+    @classmethod
+    def _frombuf(cls: _Typ[_T],
+                 buf: memoryview,
+                 off: int = 0,
+                 ) -> _T:
+        raise NotImplementedError
+
+    def _write(self) -> bytes:
+        raise NotImplementedError
+
+    @classmethod
+    def _read(cls: _Typ[_T],
+              buf: memoryview,
+              off: int = 0,
+              ) -> _T:
+        raise NotImplementedError
+
+    @classmethod
+    def _read_many(cls: _Typ[_T],
+                   buf: memoryview,
+                   ) -> _G[_T, None, None]:
+        raise NotImplementedError
+
+    @classmethod
+    def _from_file(cls: _Typ[_T],
+                   p: _Path,
+                   ) -> _G[_T, None, None]:
+        raise NotImplementedError
+
+    def _len_wrap(self,
+                  _p: _F[[int], bytes] = _vlen_pack,
+                  ) -> bytes:
+        buf = bytes(self)
+        tot_len = _p(len(buf))
+        return tot_len + buf
+
+    @classmethod
+    def _len_unwrap(cls: _Typ[_T],
+                    buf: memoryview,
+                    off: int = 0,
+                    _unp: _F[[bytes, int], _Tup[int, ...]] = _vlen_unpack_from,
+                    _hdr_len: int = _vlen_size,
+                    ) -> _Tup[int, _T]:
+        tot_len, = _unp(buf, off)
+        off += _hdr_len
+        end = off + tot_len
+        payload = buf[off:end]
+        return end, cls._frombuf(payload)
 #% macro write_class(struct) %#
 
 
-class _$$struct.name$$_storage(_NamedTuple):
+class _$$struct.name$$_tuple(_NTup):
 #% for name, (type_name, type) in struct.non_reserved_members %#
     $$name$$: $$type.pytype$$
 #% endfor %#
 
 
-class $$struct.name$$(_$$struct.name$$_storage):
+class $$struct.name$$(_$$struct.name$$_tuple, _Xpdt):
     __slots__ = ()
 
-## if struct.needs_vbuf
-    _fmt = _Struct('=I$$struct.struct_fmt$$')
-##else
     _fmt = _Struct('=$$struct.struct_fmt$$')
-## endif
     _fmt_size = _fmt.size
     _pack = _fmt.pack
     _pack_into = _fmt.pack_into
     _unpack_from = _fmt.unpack_from
     _bin_size = _fmt.size
-
-    @classmethod
-    def _frombytes(cls,
-                   buf: bytes,
-                   ) -> '$$struct.name$$':
-        _, obj = cls._frombuf(buf, 0)
-        return obj
 #% if struct.needs_vbuf %#
 $$x1v.write_methods(struct)$$
 #% elif not struct.all_members_scalar %#
 $$x1b.write_methods(struct)$$
 #% else %#
 
-    def __bytes__(self) -> bytes:
-        return self._pack(*self)
+    def __bytes__(self,
+                  _pk: _F[..., bytes] = _pack,
+                  ) -> bytes:
+        return _pk(*self)
 
     @classmethod
-    def _frombuf(cls,
-                 buf: bytes,
+    def _frombuf(cls: _Typ[_T],
+                 buf: memoryview,
                  off: int = 0,
-                 ) -> _Tuple[int, '$$struct.name$$']:
-        fields = cls._unpack_from(buf, off)
-        return cls._bin_size, cls(*fields)
+                 _unp: _F[[bytes, int], _Tup[int, ...]] = _unpack_from,
+                 ) -> _T:
+        return cls(*_unp(buf, off))
+
+    _write = __bytes__
+    _read = _frombuf
+
+    @classmethod
+    def _read_many(cls: _Typ[_T],
+                   buf: memoryview,
+                   rec_len: int = _fmt_size,
+                   unpack: _F[[bytes, int], _Tup[int, ...]] = _unpack_from,
+                   ) -> _G[_T, None, None]:
+        off = 0
+        tot_len = len(buf)
+        while off < tot_len:
+            yield cls(*cls._unpack_from(buf, off))
+            off += cls._fmt_size
+
+    @classmethod
+    def _from_file(cls: _Typ[_T],
+                   p: _Path,
+                   ) -> _G[_T, None, None]:
+        with p.open('rb') as f:
+            content = _mmap(f.fileno(), 0, access=_PROT_READ)
+            yield from cls._read_many(memoryview(content))
 #% endif %#
+
+    @classmethod
+    def _frombytes(cls: _Typ[_T],
+                   buf: bytes,
+                   _frombuf: _F[[_Typ[_T], memoryview, int], _T] = (
+                       getattr(_frombuf, '__func__')
+                   )) -> _T:
+        return _frombuf(cls, memoryview(buf), 0)
 #%- endmacro -%#
 
 #%- for struct in namespace -%#
 $$write_class(struct)$$
-#%- endfor -%#
+#% endfor %#
