@@ -13,7 +13,7 @@ class Utf8Type(BufType):
         return 'str'
 
     def read_func(self, s: str) -> str:
-        return f'{s}.decode()'
+        return f'{s}.tobytes().decode()'
 
     def write_func(self, s: str) -> str:
         return f'{s}.encode()'

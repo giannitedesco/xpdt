@@ -39,7 +39,7 @@ class $$struct.name$$(_$$struct.name$$_storage):
     def _frombytes(cls,
                    buf: bytes,
                    ) -> '$$struct.name$$':
-        _, obj = cls._frombuf(buf, 0)
+        _, obj = cls._frombuf(memoryview(buf), 0)
         return obj
 #% if struct.needs_vbuf %#
 $$x1v.write_methods(struct)$$
@@ -52,7 +52,7 @@ $$x1b.write_methods(struct)$$
 
     @classmethod
     def _frombuf(cls,
-                 buf: bytes,
+                 buf: memoryview,
                  off: int = 0,
                  ) -> _Tuple[int, '$$struct.name$$']:
         fields = cls._unpack_from(buf, off)

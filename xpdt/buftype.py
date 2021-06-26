@@ -35,7 +35,7 @@ class BufType(XpdtType):
         return True
 
     def read_func(self, s: str) -> str:
-        return s
+        return f'{s}.tobytes()'
 
     def write_func(self, s: str) -> str:
         return s

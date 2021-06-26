@@ -20,7 +20,7 @@ $$elem.python_var_name$$,
 
     @classmethod
     def _frombuf(cls,
-                 buf: bytes,
+                 buf: memoryview,
                  off: int = 0,
                  ) -> _Tuple[int, '$$ struct.name $$']:
         (

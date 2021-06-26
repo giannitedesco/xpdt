@@ -61,7 +61,7 @@ $$elem.member.type.write_func(get_member(elem.full_path_names))$$
 
     @classmethod
     def _frombuf(cls,
-                 buf: bytes,
+                 buf: memoryview,
                  off: int = 0,
                  ) -> _Tuple[int, '$$struct.name$$']:
         (

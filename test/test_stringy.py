@@ -43,12 +43,13 @@ class Test_Stringy(unittest.TestCase):
         orig = [ent_a, ent_b]
 
         clone = b''.join((bytes(ent) for ent in orig))
+        view = memoryview(clone)
 
         tot_len = len(clone)
         decoded = []
         off = 0
         while off < tot_len:
-            item_len, ent = self.code.Entity._frombuf(clone, off)
+            item_len, ent = self.code.Entity._frombuf(view, off)
             off += item_len
             decoded.append(ent)
 
