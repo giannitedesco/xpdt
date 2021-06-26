@@ -8,6 +8,10 @@ __all__ = (
 class Utf8Type(BufType):
     __slots__ = ()
 
+    @property
+    def pytype(self) -> str:
+        return 'str'
+
     def read_func(self, s: str) -> str:
         return f'{s}.decode()'
 
