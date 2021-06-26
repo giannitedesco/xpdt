@@ -28,15 +28,16 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define x1b_unlikely(x) __builtin_expect((bool)(x), false)
+#define xpdt_likely(x) __builtin_expect((bool)(x), true)
+#define xpdt_unlikely(x) __builtin_expect((bool)(x), false)
 
 #include "xu128.h"
 #include "xbuf.h"
 #include "xbuf_iter.h"
 #include "xfilemap.h"
 
-typedef uint32_t x1b_size_t;
-typedef uint32_t x1b_strlen_t;
+typedef uint32_t xpdt_reclen_t;
+typedef uint32_t xpdt_buflen_t;
 
 typedef struct xostream *xostream_t;
 uint8_t *xostream_prepare(xostream_t, size_t);

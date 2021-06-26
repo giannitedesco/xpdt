@@ -107,7 +107,7 @@ struct /*{struct.tag}*/ {
 // for member in struct
 // if member.needs_vbuf
 // if member.is_scalar
-	x1b_strlen_t /*{member.name}*/;
+	xpdt_buflen_t /*{member.name}*/;
 // else
 	/*{struct_xrec(member.type.struct)}*/ /*{member.name}*/;
 // endif
@@ -118,7 +118,7 @@ struct /*{struct.tag}*/ {
 } __attribute__((packed));
 
 /*{struct_envelope(struct)}*/ {
-	x1b_strlen_t tot_len;
+	xpdt_buflen_t tot_len;
 	/*{struct_xrec(struct)}*/ fixed;
 	uint8_t buffer[0];
 } __attribute__((packed));
@@ -208,7 +208,7 @@ bool /*{raw_write(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 	/*{struct.ctype}*/ *ptr;
 
 	ptr = (/*{struct.ctype}*/ *)xostream_prepare(out, sizeof(obj));
-	if (x1b_unlikely(ptr == NULL)) {
+	if (xpdt_unlikely(ptr == NULL)) {
 		return false;
 	}
 
@@ -231,11 +231,11 @@ bool /*{raw_write(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 {
 	/*{struct_envelope(struct)}*/ *ptr;
 	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
-	x1b_strlen_t str_len;
+	xpdt_buflen_t str_len;
 	uint8_t *buf;
 
 	ptr = (/*{struct_envelope(struct)}*/ *)xostream_prepare(out, tot_len);
-	if (x1b_unlikely(ptr == NULL)) {
+	if (xpdt_unlikely(ptr == NULL)) {
 		return false;
 	}
 
@@ -283,11 +283,11 @@ const /*{struct_xrec(struct)}*/ * /*{-struct.name}*/_read_fixed(struct xbuf_iter
 	end = it->it_end;
 
 	e = (/*{struct_envelope(struct)}*/ *)ptr;
-	if (x1b_unlikely((uint8_t *)&e->fixed > end))
+	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
 		return NULL;
 
 	ptr += e->tot_len;
-	if (x1b_unlikely(ptr > end))
+	if (xpdt_unlikely(ptr > end))
 		return NULL;
 
 	it->it_ptr = ptr;
@@ -305,11 +305,11 @@ const /*{struct_xrec(struct)}*/ * /*{-struct.name}*/_read(struct xbuf_iter *it, 
 
 	e = (/*{struct_envelope(struct)}*/ *)ptr;
 	buf = e->buffer;
-	if (x1b_unlikely((uint8_t *)&e->fixed > end))
+	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
 		return NULL;
 
 	ptr += e->tot_len;
-	if (x1b_unlikely(ptr > end))
+	if (xpdt_unlikely(ptr > end))
 		return NULL;
 /*# for path in struct.c_named_initializers_x1v #*/
 

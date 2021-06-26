@@ -30,7 +30,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include <xpdt/x1b.h>
+#include "xbuf_iter.h"
 
 struct xfilemap {
 	size_t m_len;

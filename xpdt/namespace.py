@@ -26,8 +26,8 @@ class NameSpace:
     _name: Optional[str]
     _structs: Dict[str, StructDef]
 
-    x1b_c = ctemplate.get_template('x1b.c')
-    x1b_python = pytemplate.get_template('x1b.pyt')
+    c = ctemplate.get_template('xpdt.c')
+    python = pytemplate.get_template('xpdt.pyt')
 
     def __init__(self,
                  structs: Tuple[StructDef, ...],
@@ -55,7 +55,7 @@ class NameSpace:
 
     @property
     def python_code(self) -> str:
-        return self.x1b_python.render(namespace=self)
+        return self.python.render(namespace=self)
 
     def gen_dynamic_python(self) -> SimpleNamespace:
         names = {s.name for s in self}
@@ -67,17 +67,14 @@ class NameSpace:
         f.write(self.python_code)
 
     def gen_c(self, f: TextIO) -> None:
-        x1b_hdr = SysInclude('xpdt/x1b.h')
+        xpdt_hdr = SysInclude('xpdt/xpdt.h')
         headers = (
-            SysInclude('stdint.h'),
-            SysInclude('stdbool.h'),
-            SysInclude('string.h'),
         )
 
-        code = self.x1b_c.render(
+        code = self.c.render(
             headers=headers,
             namespace=self,
-            x1b_hdr=x1b_hdr,
+            xpdt_hdr=xpdt_hdr,
         )
         f.write(code)
 

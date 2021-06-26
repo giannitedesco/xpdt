@@ -2,8 +2,8 @@
 # xpdt is written by Gianni Tedesco
 # https://www.scaramanga.co.uk
 
-## import 'x1b_defns.pyt' as x1b
-## import 'x1v_defns.pyt' as x1v
+## import 'fixed.pyt' as x1b
+## import 'vbuf.pyt' as x1v
 from struct import Struct as _Struct
 from typing import NamedTuple as _NamedTuple, Tuple as _Tuple
 
