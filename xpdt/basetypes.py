@@ -3,6 +3,7 @@ from enum import Enum
 
 from .integraltype import IntegralType
 from .buftype import BufType
+from .utf8type import Utf8Type
 from .uuidtype import UuidType
 from .typedef import TypeDef
 
@@ -12,6 +13,7 @@ __all__ = (
 )
 
 Blob = BufType()
+Utf8 = Utf8Type()
 xu128 = UuidType()
 UnsignedInt8 = IntegralType(8, False)
 SignedInt8 = IntegralType(8, True)
@@ -27,6 +29,7 @@ class BaseType(TypeDef, Enum):
     __slots__ = ()
 
     blob = 'blob', Blob
+    utf8 = 'utf8', Utf8
     u8 = 'u8', UnsignedInt8
     i8 = 'i8', SignedInt8
     u16 = 'u16', UnsignedInt16

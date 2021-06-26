@@ -14,8 +14,6 @@ class IntegralType(XpdtType):
         '_ctype',
     )
 
-    pytype = 'int'
-
     _struct_map = {
         8: 'b',
         16: 'h',
@@ -39,6 +37,10 @@ class IntegralType(XpdtType):
     @property
     def ctype(self) -> str:
         return self._ctype
+
+    @property
+    def pytype(self) -> str:
+        return 'int'
 
     @property
     def struct_fmt(self) -> str:

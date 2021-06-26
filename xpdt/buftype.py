@@ -11,14 +11,16 @@ class BufType(XpdtType):
         '_off_type',
     )
 
-    pytype = 'bytes'
-
     def __init__(self) -> None:
         self._off_type = IntegralType(32, False)
 
     @property
     def struct_fmt(self) -> str:
         return self._off_type.struct_fmt
+
+    @property
+    def pytype(self) -> str:
+        return 'bytes'
 
     @property
     def ctype(self) -> str:
@@ -31,3 +33,9 @@ class BufType(XpdtType):
     @property
     def needs_vbuf(self) -> bool:
         return True
+
+    def read_func(self, s: str) -> str:
+        return s
+
+    def write_func(self, s: str) -> str:
+        return s

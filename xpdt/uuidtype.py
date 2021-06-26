@@ -8,11 +8,13 @@ __all__ = (
 class UuidType(XpdtType):
     __slots__ = ()
 
-    pytype = 'bytes'
-
     @property
     def ctype(self) -> str:
         return 'xu128_t'
+
+    @property
+    def pytype(self) -> str:
+        return 'bytes'
 
     @property
     def struct_fmt(self) -> str:

@@ -17,9 +17,11 @@ class Test_RoundTrips(unittest.TestCase):
                 StructDef(
                     name='Item',
                     members=(
+                        MemberDef('uuid', BaseType.uuid),
                         MemberDef('id', BaseType.u32),
-                        MemberDef('first_name', BaseType.blob),
-                        MemberDef('surname', BaseType.blob),
+                        MemberDef('first_name', BaseType.utf8),
+                        MemberDef('surname', BaseType.utf8),
+                        MemberDef('data', BaseType.blob),
                     ),
                 ),
             ),
@@ -34,7 +36,7 @@ class Test_RoundTrips(unittest.TestCase):
 
 
     def test_item(self):
-        orig = self.code.Item(0xdeadbeef, b'Malkovich', b'')
+        orig = self.code.Item(b'\x00' * 16, 0xdeadbeef, 'Malkovich', '', b'\x12\x34')
         b = bytes(orig)
         clone = orig._frombytes(b)
         self.assertEqual(orig, clone)
