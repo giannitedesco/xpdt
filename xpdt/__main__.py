@@ -1,10 +1,11 @@
+from typing import Generator
 from argparse import ArgumentParser
 from pathlib import Path
 from sys import stdout
 from itertools import chain
 import logging
 
-from xpdt import NameSpace
+from xpdt import NameSpace, StructDecl
 from .parse import parse_file
 from .shiftreduce import ParseError
 
@@ -58,20 +59,34 @@ def main() -> None:
     else:
         _log.setLevel(logging.INFO)
 
+    file_set = args.file
+    single = len(file_set) == 1
+
     if args.module_name is None:
-        if len(args.file) == 1:
-            in_path, = args.file
+        if single:
+            in_path, = file_set
             module_name = in_path.stem
         else:
             module_name = 'xpdt'
     else:
         module_name = args.module_name
 
-    try:
-        decls = tuple(chain(*map(parse_file, args.file)))
-    except ParseError as e:
-        print(e)
-        raise SystemExit(1)
+    def parse(p: Path) -> Generator[StructDecl, None, None]:
+        try:
+            yield from parse_file(p)
+        except ParseError as e:
+            print(e)
+            raise SystemExit(1)
+
+    def parse_with_prefix(p: Path) -> Generator[StructDecl, None, None]:
+        name = p.stem
+        return ((s.prefix(name) for s in parse(p)))
+
+    if single:
+        in_file, = file_set
+        decls = tuple(parse(in_file))
+    else:
+        decls = tuple(chain(*map(parse_with_prefix, file_set)))
 
     ns = NameSpace.from_decls(decls, name=module_name)
 
