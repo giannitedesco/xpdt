@@ -18,6 +18,8 @@ from typing import (
     Type as _Typ,
     TypeVar as _TV,
     Any as _Any,
+    Optional as _O,
+    Mapping as _M,
 )
 
 __all__ = (
@@ -26,21 +28,27 @@ __all__ = (
 #% endfor %#
 )
 
-_T = _TV('_T', bound='_Xpdt')
+_T = _TV('_T', bound='_XpdtBase')
 
 _vlen_fmt = _Struct('=I')
 _vlen_size = _vlen_fmt.size
 _vlen_unpack_from = _vlen_fmt.unpack_from
 _vlen_pack = _vlen_fmt.pack
 
+_enum_fmt = _Struct('=II')
+_enum_size = _enum_fmt.size
+_enum_unpack_from = _enum_fmt.unpack_from
+_enum_pack = _enum_fmt.pack
 
-class _Xpdt:
+
+class _XpdtBase:
     __slots__ = ()
 
     _unpack_from: _F[[memoryview, int], _Tup[int, ...]]
     _fmt_size: int
+    _discr: _O[int] = None
 
-    # These methods are defined in order to allow _Xpdt class to be a
+    # These methods are defined in order to allow _XpdtBase class to be a
     # placeholder for any of the below classes. They should never be called
     # since the derived classes will provide their own implementations.
     @classmethod
@@ -79,6 +87,9 @@ class _Xpdt:
                    ) -> _G[_T, None, None]:
         raise NotImplementedError
 
+    def _enum_wrap(self) -> bytes:
+        raise NotImplementedError
+
     def _len_wrap(self,
                   _p: _F[[int], bytes] = _vlen_pack,
                   ) -> bytes:
@@ -107,8 +118,12 @@ class _$$struct.name$$_tuple(_NTup):
 #% endfor %#
 
 
-class $$struct.name$$(_$$struct.name$$_tuple, _Xpdt):
+class $$struct.name$$(_$$struct.name$$_tuple, _XpdtBase):
     __slots__ = ()
+
+#% if struct.has_discriminant %#
+    _discr = $$struct.discriminant$$
+#% endif %#
 
     _fmt = _Struct('=$$struct.struct_fmt$$')
     _fmt_size = _fmt.size
@@ -159,6 +174,16 @@ $$x1b.write_methods(struct)$$
             yield from cls._read_many(memoryview(content))
 #% endif %#
 
+#% if struct.has_discriminant %#
+    def _enum_wrap(self,
+                   _p: _F[[int, int], bytes] = _enum_pack,
+                   _d: int = _discr,
+                   ) -> bytes:
+        buf = bytes(self)
+        tot_len = _p(len(buf), _d)
+        return tot_len + buf
+#% endif %#
+
     @classmethod
     def _frombytes(cls: _Typ[_T],
                    buf: bytes,
@@ -171,3 +196,47 @@ $$x1b.write_methods(struct)$$
 #%- for struct in namespace -%#
 $$write_class(struct)$$
 #% endfor %#
+#%- if namespace.has_name %#
+
+
+class $$namespace.name.title()$$:
+    __slots__ = ()
+
+    struct_names = frozenset({
+#% for struct in namespace %#
+        '$$struct.name$$',
+#% endfor %#
+    })
+
+    structs: _M[int, _Typ[_XpdtBase]] = {
+#% for struct in namespace %#
+#% if struct.has_discriminant %#
+        $$struct.discriminant$$: $$struct.name$$,
+#% endif %#
+#% endfor %#
+    }
+
+    @classmethod
+    def read_many(cls,
+                  buf: memoryview,
+                  _unp: _F[[bytes, int], _Tup[int, ...]] = _enum_unpack_from,
+                  _hdr_len: int = _enum_size,
+                  _clsmap: _M[int, _Typ[_XpdtBase]] = structs,
+                  ) -> _G[_XpdtBase, None, None]:
+        tot_len = len(buf)
+        off = 0
+        while off < tot_len:
+            rec_len, discr = _unp(buf, off)
+            off += _hdr_len
+            t = _clsmap[discr]
+            yield t._frombuf(buf, off)
+            off += rec_len
+
+    @classmethod
+    def from_file(cls,
+                  p: _Path,
+                  ) -> _G[_XpdtBase, None, None]:
+        with p.open('rb') as f:
+            content = _mmap(f.fileno(), 0, access=_PROT_READ)
+            yield from cls.read_many(memoryview(content))
+#% endif %#

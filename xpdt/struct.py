@@ -1,4 +1,4 @@
-from typing import Tuple, Generator, Iterator, Dict
+from typing import Tuple, Generator, Iterator, Dict, Optional
 
 from .dupes import dupes
 
@@ -15,20 +15,26 @@ __all__ = (
 class StructDef:
     __slots__ = (
         '_name',
+        '_discr',
         '_membs',
         '_vmembs',
     )
 
     _name: str
+    _discr: Optional[int]
     _membs: Dict[str, MemberDef]
     _vmembs: Tuple[MemberDef, ...]
 
-    def __init__(self, name: str, members: Tuple[MemberDef, ...]):
+    def __init__(self,
+                 name: str,
+                 members: Tuple[MemberDef, ...],
+                 discriminant: Optional[int] = None):
         d = dupes((m.name for m in members))
         if d:
             raise ValueError(f'{name}: Duplicated member name: '
                              ", ".join(d))
         self._name = name
+        self._discr = discriminant
         self._membs = {m.name: m for m in members}
         self._vmembs = tuple((m for m in members
                               if m.needs_vbuf))
@@ -36,6 +42,15 @@ class StructDef:
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def discriminant(self) -> int:
+        assert self._discr is not None
+        return self._discr
+
+    @property
+    def has_discriminant(self) -> bool:
+        return self._discr is not None
 
     @property
     def ctype(self) -> str:

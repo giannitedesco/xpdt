@@ -47,6 +47,10 @@ class NameSpace:
     def name(self) -> Optional[str]:
         return self._name
 
+    @property
+    def has_name(self) -> bool:
+        return self._name is not None
+
     def __iter__(self) -> Iterator[StructDef]:
         yield from self._structs.values()
 
@@ -102,6 +106,7 @@ class NameSpace:
             struct = StructDef(
                 name,
                 tuple((define_member(m) for m in decl.members)),
+                discriminant=decl.discriminant,
             )
             if name in typemap:
                 raise ValueError(f'{this}: Type {name!r} already defined')

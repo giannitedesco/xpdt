@@ -4,6 +4,7 @@ from pathlib import Path
 from sys import stdout
 from itertools import chain
 import logging
+import toml
 
 from xpdt import NameSpace, StructDecl
 from .parse import parse_file
@@ -36,6 +37,10 @@ def main() -> None:
                       action='count',
                       default=0,
                       help='Be more talkative')
+    opts.add_argument('--registry', '-r',
+                      default=None,
+                      type=Path,
+                      help='Path to registry.toml')
     opts.add_argument('--module-name', '-n',
                       default=None,
                       type=str,
@@ -62,14 +67,20 @@ def main() -> None:
     file_set = args.file
     single = len(file_set) == 1
 
-    if args.module_name is None:
-        if single:
-            in_path, = file_set
-            module_name = in_path.stem
-        else:
-            module_name = 'xpdt'
+    if args.registry is not None:
+        registry = toml.load(args.registry)
     else:
+        registry = {}
+
+    if args.module_name:
         module_name = args.module_name
+    elif meta_name := registry.get('meta', {}).get('name'):
+        module_name = meta_name
+    elif single:
+        in_path, = file_set
+        module_name = in_path.stem
+    else:
+        module_name = 'xpdt'
 
     def parse(p: Path) -> Generator[StructDecl, None, None]:
         try:
@@ -80,7 +91,29 @@ def main() -> None:
 
     def parse_with_prefix(p: Path) -> Generator[StructDecl, None, None]:
         name = p.stem
-        return ((s.prefix(name) for s in parse(p)))
+
+        if registry:
+            module_id = registry['modules'][name]
+            struct_map = registry['module'][name]
+        else:
+            module_id = 0
+            struct_map = {}
+
+        assert 0 <= module_id <= 0xffff
+
+        for s in parse(p):
+            decl = s.with_prefix(name)
+
+            if registry:
+                struct_name = s.struct_name
+                struct_id = struct_map[struct_name]
+
+                assert 0 <= struct_id <= 0xffff
+
+                discriminant = (module_id << 16) | struct_id
+                decl = decl.with_discriminant(discriminant)
+
+            yield decl
 
     if single:
         in_file, = file_set
