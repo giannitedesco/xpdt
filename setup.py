@@ -4,7 +4,8 @@ from typing import Dict, Any
 from pathlib import Path
 import setuptools
 
-version_file = Path('xpdt/__version__.py')
+pkg = 'xpdt'
+version_file = Path(pkg) / '__version__.py'
 v: Dict[str, Any] = {}
 exec(version_file.read_text(), v)
 
@@ -15,7 +16,7 @@ setuptools.setup(
     author=v['__author__'],
     author_email=v['__author_email__'],
     package_data={
-        'xpdt': ['py.typed'],
+        pkg: ['py.typed'],
     },
     install_requires=[
         'jinja2',
@@ -26,7 +27,7 @@ setuptools.setup(
     license=v['__license__'],
     platforms='any',
     packages=[
-        'xpdt',
+        pkg,
     ],
     url=v['__url__'],
     classifiers=[
@@ -47,7 +48,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'xpdt = xpdt.__main__:main',
+            f'{pkg} = {pkg}.__main__:main',
         ],
     },
 )
