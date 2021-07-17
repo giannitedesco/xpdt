@@ -50,7 +50,10 @@ _T = TypeVar('_T')
 
 
 class State(Generic[_T]):
+    __slots__ = ()
+
     def on(self: _T, *args: str) -> Callable[..., StateFunc[_T]]: ...
+    def default(self: _T) -> Callable[..., StateFunc[_T]]: ...
     def __call__(self: _T, tok: Token) -> NextState[_T]: ...
 
 
@@ -60,6 +63,7 @@ StateFunc = Callable[[_T, Token], NextState[_T]]
 
 def state(func: Callable[[_T], None]) -> State[_T]:
     registry: Dict[Any, StateFunc[_T]] = {}
+    dfl: Optional[StateFunc[_T]] = None
 
     def on(*args: str) -> Callable[..., StateFunc[_T]]:
         def decorator(func: StateFunc[_T]) -> StateFunc[_T]:
@@ -68,12 +72,27 @@ def state(func: Callable[[_T], None]) -> State[_T]:
             return func
         return decorator
 
+    def default() -> Callable[..., StateFunc[_T]]:
+        nonlocal dfl
+
+        def decorator(func: StateFunc[_T]) -> StateFunc[_T]:
+            nonlocal dfl
+            dfl = func
+            return func
+
+        return decorator
+
     @wraps(func)
     def wrapper(self: _T, tok: Token) -> NextState[_T]:
+        nonlocal dfl
+
         tok_type = tok.tok_type
         try:
             f = registry[tok_type]
         except KeyError:
+            if dfl is not None:
+                return dfl(self, tok)
+
             expected = ', '.join(sorted(registry.keys()))
             raise ParseError(
                 f'{tok_type} unexpected, looking for {expected}',
@@ -82,4 +101,6 @@ def state(func: Callable[[_T], None]) -> State[_T]:
         return f(self, tok)
 
     wrapper.on = on  # type: ignore
+    wrapper.default = default  # type: ignore
+
     return cast(State[_T], wrapper)
