@@ -1,6 +1,8 @@
 from typing import NamedTuple, Generator, FrozenSet, Pattern
 import re
 
+from .shiftreduce import ParseError
+
 
 __all__ = (
     'lex',
@@ -52,7 +54,11 @@ def lex(s: str,
             line += 1
 
     if pos < len(s):
-        raise ValueError
+        bad = s[pos:]
+        if len(bad) > 32:
+            bad = bad[:29] + '...'
+        tok = Lexeme('unknown', bad, file, line)
+        raise ParseError('Lex error', tok)
 
     if eof:
         yield Lexeme('eof', '$', file, line)
