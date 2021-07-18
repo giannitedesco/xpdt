@@ -4,32 +4,82 @@
 
 
 /*#- macro ctor(struct) -#*/
-/*{struct.name}*/_new
+/*{struct.name}*/__new
 /*#- endmacro -#*/
 
 
-/*#- macro xrec_ctor(struct) -#*/
-/*{struct.name}*/_xrec
+/*#- macro fixed_ctor(struct) -#*/
+/*{struct.name}*/__fixed
 /*#- endmacro -#*/
 
 
-/*#- macro xptrs_ctor(struct) -#*/
-/*{struct.name}*/_xptrs
+/*#- macro ptrs_ctor(struct) -#*/
+/*{struct.name}*/__ptrs
 /*#- endmacro -#*/
 
 
-/*#- macro raw_write(struct) -#*/
-/*{struct.name}*/_raw_write
+/*#- macro rd(struct) -#*/
+/*{struct.name}*/__read
+/*#- endmacro -#*/
+
+
+/*#- macro rd_fixed(struct) -#*/
+/*{struct.name}*/__read_fixed
+/*#- endmacro -#*/
+
+
+/*#- macro rd_sized(struct) -#*/
+/*{struct.name}*/__read_sized
+/*#- endmacro -#*/
+
+
+/*#- macro wr_fixed(struct) -#*/
+/*{struct.name}*/__wr_fixed
+/*#- endmacro -#*/
+
+
+/*#- macro wr_sized(struct) -#*/
+/*{struct.name}*/__wr_sized
+/*#- endmacro -#*/
+
+
+/*#- macro wr_wrapped(struct) -#*/
+/*{struct.name}*/__wr_wrapped
+/*#- endmacro -#*/
+
+
+/*#- macro wr(struct) -#*/
+/*{struct.name}*/__wr
+/*#- endmacro -#*/
+
+
+/*#- macro write_fixed(struct) -#*/
+/*{struct.name}*/__write_fixed
+/*#- endmacro -#*/
+
+
+/*#- macro write_sized(struct) -#*/
+/*{struct.name}*/__write_sized
+/*#- endmacro -#*/
+
+
+/*#- macro write_wrapped(struct) -#*/
+/*{struct.name}*/__write_wrapped
 /*#- endmacro -#*/
 
 
 /*#- macro bufreq(struct) -#*/
-/*{struct.name}*/_bufreq
+/*{struct.name}*/__vbuf_size
 /*#- endmacro -#*/
 
 
 /*#- macro construct(struct) -#*/
-/*{struct.name}*/_construct
+/*{struct.name}*/__construct
+/*#- endmacro -#*/
+
+
+/*#- macro write(struct) -#*/
+/*{struct.name}*/__write
 /*#- endmacro -#*/
 
 
@@ -70,77 +120,108 @@
 
 
 /*#- macro naturally_packed(struct) -#*/
-/*#- if struct.needs_vbuf -#*/
-__attribute__((packed))
-/*#- endif -#*/
+/*# if struct.needs_vbuf #*/
+ __attribute__((packed))
+/*#- endif #*/
 /*#- endmacro -#*/
 
 
-/*#- macro struct_xrec(struct) -#*/
-struct /*{struct.name}*/_xrec
+/*#- macro fixed(struct) -#*/
+struct /*{struct.name}*/__fixed
 /*#- endmacro -#*/
 
 
-/*#- macro struct_envelope(struct) -#*/
-struct /*{struct.name}*/_xrec_envelope
+/*#- macro struct_fixed(struct) -#*/
+/*# if struct.needs_vbuf #*/
+/*{fixed(struct)}*/
+/*#- else #*/
+struct /*{struct.name}*/
+/*#- endif #*/
 /*#- endmacro -#*/
 
 
-/*#- macro struct_xptrs(struct) -#*/
-struct /*{struct.name}*/_xptrs
+/*#- macro sized(struct) -#*/
+struct /*{struct.name}*/__sized
 /*#- endmacro -#*/
 
 
-/*#- macro struct_decl(struct) -#*/
+/*#- macro wrapped(struct) -#*/
+struct /*{struct.name}*/__wrapped
+/*#- endmacro -#*/
 
-struct /*{struct.tag}*/ {
+
+/*#- macro ptrs_struct(struct) -#*/
+struct /*{struct.name}*/__ptrs
+/*#- endmacro -#*/
+
+
+/*#- macro api_struct_decl(struct) -#*/
+
+struct /*{struct.name}*/ {
 // for member in struct
 	/*{member.cdecl}*/;
 // endfor
-} /*{naturally_packed(struct)}*/;
+}/*{naturally_packed(struct)}*/;
 /*#- endmacro -#*/
 
 
-/*#- macro serialized_struct_decl(struct) -#*/
+################################################################################
+/*# macro fixed_struct_decl(struct) #*/
 
-/*{struct_xrec(struct)}*/ {
+/*{fixed(struct)}*/ {
 // for member in struct
 // if member.needs_vbuf
 // if member.is_scalar
 	xpdt_buflen_t /*{member.name}*/;
 // else
-	/*{struct_xrec(member.type.struct)}*/ /*{member.name}*/;
+	/*{struct_fixed(member.type.struct)}*/ /*{member.name}*/;
 // endif
 // else
 	/*{member.cdecl}*/;
 // endif
 // endfor
 } __attribute__((packed));
+/*#- endmacro -#*/
 
-/*{struct_envelope(struct)}*/ {
-	xpdt_buflen_t tot_len;
-	/*{struct_xrec(struct)}*/ fixed;
-	uint8_t buffer[0];
+
+################################################################################
+/*# macro len_wrapped_struct_decl(struct) #*/
+
+/*{sized(struct)}*/ {
+	struct xpdt_sized hdr;
+	/*{struct_fixed(struct)}*/ fixed;
+// if struct.needs_vbuf
+	uint8_t vbuf[0];
+// endif
+} __attribute__((packed));
+
+/*{wrapped(struct)}*/ {
+	struct xpdt_enum hdr;
+	/*{struct_fixed(struct)}*/ fixed;
+// if struct.needs_vbuf
+	uint8_t vbuf[0];
+// endif
 } __attribute__((packed));
 /*#- endmacro -#*/
 
 
+################################################################################
+/*# macro vbuf_struct_decl(struct) #*/
 
-/*#- macro vbuf_struct_decl(struct) -#*/
-
-/*{struct_xptrs(struct)}*/ {
+/*{ptrs_struct(struct)}*/ {
 // for member in struct.vbuf_members
 // if member.type.is_scalar
 	const uint8_t * /*{-member.name}*/;
 // else
-	/*{struct_xptrs(member.type.struct)}*/ /*{member.name}*/;
+	/*{ptrs_struct(member.type.struct)}*/ /*{member.name}*/;
 // endif
 // endfor
 };
 /*#- endmacro -#*/
 
 
-/*#- macro fixed_ctor_defn(struct) #*/
+################################################################################
+/*#- macro ctor_defn(struct) #*/
 #define /*{init_macro_name(struct)}*/( \
 		/*{_memb_names(struct)|macro}*/) \
 	(/*{struct.ctype}*/){ \
@@ -159,19 +240,21 @@ static inline
 /*#- endmacro -#*/
 
 
-/*#- macro vbuf_ctor_defn(struct) #*/
+################################################################################
+/*#- macro fixed_ctor_defn(struct) #*/
 
+/* Convert /*{struct.name}*/ in to its serialized format, without strings */
 static inline
-/*{struct_xrec(struct)}*/
-/*{xrec_ctor(struct)}*/(struct /*{struct.tag}*/ obj)
+/*{struct_fixed(struct)}*/
+/*{fixed_ctor(struct)}*/(const struct /*{struct.name}*/ obj)
 {
-	return (/*{struct_xrec(struct)}*/){
+	return (/*{struct_fixed(struct)}*/){
 // for member in struct.non_reserved_members
 // if member.needs_vbuf
 // if member.is_scalar
 		./*{member.name}*/ = obj./*{member.name}*/.len,
 // else
-		./*{member.name}*/ = /*{xrec_ctor(member.type.struct)}*/(obj./*{member.name}*/),
+		./*{member.name}*/ = /*{fixed_ctor(member.type.struct)}*/(obj./*{member.name}*/),
 // endif
 // else
 		./*{member.name}*/ = obj./*{member.name}*/,
@@ -179,12 +262,18 @@ static inline
 // endfor
 	};
 }
+/*#- endmacro -#*/
 
+
+################################################################################
+/*#- macro ptrs_ctor_defn(struct) #*/
+
+/* Get pointers to all the variable length fields of a /*{struct.name}*/ object */
 static inline
-/*{struct_xptrs(struct)}*/
-/*{xptrs_ctor(struct)}*/(struct /*{struct.tag}*/ obj)
+/*{ptrs_struct(struct)}*/
+/*{ptrs_ctor(struct)}*/(const struct /*{struct.name}*/ obj)
 {
-	return (/*{struct_xptrs(struct)}*/){
+	return (/*{ptrs_struct(struct)}*/){
 // for path in struct.c_named_initializers_x1v
 		./*{path}*/ = obj./*{path}*/.ptr,
 // endfor
@@ -193,17 +282,12 @@ static inline
 /*#- endmacro -#*/
 
 
-// macro ctors(struct)
-/*{fixed_ctor_defn(struct)}*/
-// if struct.needs_vbuf
-/*{vbuf_ctor_defn(struct)}*/
-// endif
-// endmacro
+################################################################################
+/*# macro write_fixed_func(struct) #*/
 
-
-/*# macro raw_write_fixed_func(struct) #*/
+/* Write an /*{struct.name}*/ object */
 static inline
-bool /*{raw_write(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
+bool /*{wr_fixed(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 {
 	/*{struct.ctype}*/ *ptr;
 
@@ -216,99 +300,180 @@ bool /*{raw_write(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 
 	return xostream_commit(out, sizeof(obj));
 }
-/*# endmacro #*/
+
+/* Create an object and then write it */
+static inline
+bool /*{write_fixed(struct)}*/(xostream_t out,
+		/*{cdecls(struct)}*/)
+{
+	return /*{wr_fixed(struct)}*/(out, /*{ctor(struct)}*/(
+		/*{memb_names(struct)}*/));
+}
+/*#- endmacro -#*/
 
 
-/*# macro raw_write_variable_func(struct) #*/
+################################################################################
+/*# macro write_bufreq_func(struct) #*/
+
+/* Calculate the amount of space needed for the vbuf */
 static inline
 size_t /*{bufreq(struct)}*/(const /*{struct.ctype}*/ obj)
 {
 	return /*{buf_lens(struct)}*/;
 }
+/*#- endmacro -#*/
 
+
+################################################################################
+/*# macro write_sized_func(struct) #*/
+
+/* Write an /*{struct.name}*/ object */
 static inline
-bool /*{raw_write(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
+bool /*{wr_sized(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 {
-	/*{struct_envelope(struct)}*/ *ptr;
+	/*{sized(struct)}*/ *ptr;
+// if struct.needs_vbuf
 	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+// else
+	const size_t tot_len = sizeof(*ptr);
+// endif
 	xpdt_buflen_t str_len;
 	uint8_t *buf;
 
-	ptr = (/*{struct_envelope(struct)}*/ *)xostream_prepare(out, tot_len);
+	ptr = (/*{sized(struct)}*/ *)xostream_prepare(out, tot_len);
 	if (xpdt_unlikely(ptr == NULL)) {
 		return false;
 	}
 
-	ptr->tot_len = tot_len;
-	ptr->fixed = /*{xrec_ctor(struct)}*/(obj);
+	ptr->hdr.tot_len = tot_len;
+	ptr->fixed = /*{fixed_ctor(struct)}*/(obj);
 
-	buf = ptr->buffer;
+// if struct.needs_vbuf
+	buf = ptr->vbuf;
 /*# for path in struct.c_named_initializers_x1v #*/
 
 	str_len = obj./*{path}*/.len;
 	memcpy(buf, obj./*{path}*/.ptr, str_len);
 	buf += str_len;
 /*# endfor #*/
+// endif
 
 	return xostream_commit(out, tot_len);
 }
-/*# endmacro #*/
 
-/*#- macro writers(struct) -#*/
-// if struct.needs_vbuf
-/*{raw_write_variable_func(struct)}*/
-// else
-/*{raw_write_fixed_func(struct)}*/
-// endif
-
+/* Create an object and then write it */
 static inline
-bool /*{struct.name}*/_write(xostream_t out,
+bool /*{write_sized(struct)}*/(xostream_t out,
 		/*{cdecls(struct)}*/)
 {
-	return /*{raw_write(struct)}*/(out, /*{ctor(struct)}*/(
+	return /*{wr_sized(struct)}*/(out, /*{ctor(struct)}*/(
 		/*{memb_names(struct)}*/));
 }
 /*#- endmacro -#*/
 
 
-/*#- macro readers(struct) #*/
+################################################################################
+/*# macro write_wrapped_func(struct) #*/
+
+/* Write an /*{struct.name}*/ object */
+static inline
+bool /*{wr_wrapped(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
+{
+	/*{wrapped(struct)}*/ *ptr;
+// if struct.needs_vbuf
+	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+// else
+	const size_t tot_len = sizeof(*ptr);
+// endif
+	xpdt_buflen_t str_len;
+	uint8_t *buf;
+
+	ptr = (/*{wrapped(struct)}*/ *)xostream_prepare(out, tot_len);
+	if (xpdt_unlikely(ptr == NULL)) {
+		return false;
+	}
+
+	ptr->hdr.tot_len = tot_len;
+	ptr->hdr.discr = 0x/*{struct.discriminant|hex32}*/;
+	ptr->hdr.stamp = xostream_get_timestamp();
+	ptr->fixed = /*{fixed_ctor(struct)}*/(obj);
+
+// if struct.needs_vbuf
+	buf = ptr->vbuf;
+/*# for path in struct.c_named_initializers_x1v #*/
+
+	str_len = obj./*{path}*/.len;
+	memcpy(buf, obj./*{path}*/.ptr, str_len);
+	buf += str_len;
+/*# endfor #*/
+// endif
+
+	return xostream_commit(out, tot_len);
+}
+
+/* Create an object and then write it */
+static inline
+bool /*{write_wrapped(struct)}*/(xostream_t out,
+		/*{cdecls(struct)}*/)
+{
+	return /*{wr_wrapped(struct)}*/(out, /*{ctor(struct)}*/(
+		/*{memb_names(struct)}*/));
+}
+/*#- endmacro -#*/
+
+
+################################################################################
+/*# macro readers(struct) #*/
 
 static inline
-const /*{struct_xrec(struct)}*/ * /*{-struct.name}*/_read_fixed(struct xbuf_iter *it)
+const /*{struct_fixed(struct)}*/ *
+/*# if struct.needs_vbuf #*/
+/*{rd_fixed(struct)}*/(struct xbuf_iter *it, /*{ptrs_struct(struct)}*/ *ptrs)
+/*# else #*/
+/*{rd_fixed(struct)}*/(struct xbuf_iter *it)
+/*# endif #*/
 {
-	const /*{struct_envelope(struct)}*/ *e;
+	const /*{struct_fixed(struct)}*/ *f;
 	const uint8_t *ptr, *end;
 
 	ptr = it->it_ptr;
 	end = it->it_end;
 
-	e = (/*{struct_envelope(struct)}*/ *)ptr;
-	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
-		return NULL;
-
-	ptr += e->tot_len;
+	f = (/*{struct_fixed(struct)}*/ *)ptr;
+	ptr += sizeof(*f);
 	if (xpdt_unlikely(ptr > end))
 		return NULL;
+/*# if struct.needs_vbuf #*/
+/*# for path in struct.c_named_initializers_x1v #*/
+
+	ptrs->/*{path}*/ = ptr;
+	ptr += f->/*{path}*/;
+/*# endfor #*/
+
+	if (xpdt_unlikely(ptr > end))
+		return NULL;
+/*# endif #*/
 
 	it->it_ptr = ptr;
-	return &e->fixed;
+	return f;
 }
 
 static inline
-const /*{struct_xrec(struct)}*/ * /*{-struct.name}*/_read(struct xbuf_iter *it, /*{struct_xptrs(struct)}*/ *ptrs)
+const /*{struct_fixed(struct)}*/ *
+/*{rd_sized(struct)}*/(struct xbuf_iter *it, /*{ptrs_struct(struct)}*/ *ptrs)
 {
-	const /*{struct_envelope(struct)}*/ *e;
+	const /*{sized(struct)}*/ *e;
 	const uint8_t *buf, *ptr, *end;
 
 	ptr = it->it_ptr;
 	end = it->it_end;
 
-	e = (/*{struct_envelope(struct)}*/ *)ptr;
-	buf = e->buffer;
+	e = (/*{sized(struct)}*/ *)ptr;
+	buf = e->vbuf;
 	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
 		return NULL;
 
-	ptr += e->tot_len;
+	ptr += e->hdr.tot_len;
 	if (xpdt_unlikely(ptr > end))
 		return NULL;
 /*# for path in struct.c_named_initializers_x1v #*/
@@ -320,9 +485,16 @@ const /*{struct_xrec(struct)}*/ * /*{-struct.name}*/_read(struct xbuf_iter *it, 
 	it->it_ptr = ptr;
 	return &e->fixed;
 }
+/*#- endmacro -#*/
 
+
+################################################################################
+/*# macro obj_ptrs_ctor_defn(struct) #*/
+
+/* Reconstruct a /*{struct.name}*/ object from it's serialized representation and buffers */
 static inline
-/*{struct.ctype}*/ /*{construct(struct)}*/(const /*{struct_xrec(struct)}*/ *rec, const /*{struct_xptrs(struct)}*/ *ptrs)
+/*{struct.ctype}*/
+/*{construct(struct)}*/(const /*{struct_fixed(struct)}*/ *rec, const /*{ptrs_struct(struct)}*/ *ptrs)
 {
 	return (/*{struct.ctype}*/){
 // for member in struct.non_reserved_members

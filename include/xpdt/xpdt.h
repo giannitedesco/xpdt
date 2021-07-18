@@ -38,6 +38,16 @@
 
 typedef uint32_t xpdt_reclen_t;
 typedef uint32_t xpdt_buflen_t;
+typedef uint32_t xpdt_discriminant_t;
+
+struct xpdt_sized {
+	xpdt_buflen_t tot_len;
+} __attribute__((packed));
+
+struct xpdt_enum {
+	xpdt_buflen_t tot_len;
+	xpdt_discriminant_t discr;
+} __attribute__((packed));
 
 typedef struct xostream *xostream_t;
 uint8_t *xostream_prepare(xostream_t, size_t);

@@ -23,8 +23,7 @@
  * IN THE SOFTWARE.
 */
 
-#include <stdlib.h>
-
+#include <string.h>
 #include <stdlib.h>
 
 struct xbuf {
@@ -42,6 +41,12 @@ static inline struct xbuf xbuf(size_t len,
 				const uint8_t buf[static len])
 {
 	return XBUF_INIT(len, buf);
+}
+
+static inline struct xbuf xbuf_str(size_t len,
+				const char buf[static len])
+{
+	return XBUF_INIT(len, (uint8_t *)buf);
 }
 
 static inline struct xbuf xbuf_nil(void)

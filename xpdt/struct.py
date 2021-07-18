@@ -57,10 +57,6 @@ class StructDef:
         return f'struct {self._name}'
 
     @property
-    def tag(self) -> str:
-        return self._name
-
-    @property
     def member_types(self) -> Generator[XpdtType, None, None]:
         yield from (m.typedef.type for m in self)
 
@@ -200,10 +196,6 @@ class StructType(XpdtType):
         return self._struct.struct_fmt
 
     @property
-    def struct_tag(self) -> str:
-        return self._struct.tag
-
-    @property
     def struct(self) -> StructDef:
         return self._struct
 
@@ -225,7 +217,6 @@ class StructType(XpdtType):
 
     @property
     def struct_name(self) -> str:
-        # Allow the possibility for typedef and struct name to differ
         return self._struct.name
 
     def construct_recursive(self,

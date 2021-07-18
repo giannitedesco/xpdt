@@ -23,6 +23,10 @@ def _macro(s: str) -> str:
     return s.replace('\n', ' \\\n')
 
 
+def _hex32(s: str) -> str:
+    return '%.8x' % int(s)
+
+
 def _setup(env: Environment) -> None:
     env.undefined = StrictUndefined
     env.filters.update({f: getattr(builtins, f) for f in (
@@ -38,6 +42,7 @@ def _setup(env: Environment) -> None:
         'suffix': _suffix,
         'wrap': _wrap,
         'macro': _macro,
+        'hex32': _hex32,
     })
 
 
