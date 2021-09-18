@@ -5,6 +5,7 @@ __all__ = (
     'BufType',
     'Utf8Type',
     'ByteArrayType',
+    'StringArrayType',
 )
 
 
@@ -73,3 +74,17 @@ class ByteArrayType(BufBase):
 
     def write_func(self, s: str) -> str:
         return f'bytes({s})'
+
+
+class StringArrayType(BufBase):
+    __slots__ = ()
+
+    @property
+    def pytype(self) -> str:
+        return '_Tup[str]'
+
+    def read_func(self, s: str) -> str:
+        return f"tuple((x.decode() for x in tobytes({s}).split(b'\\x00')))"
+
+    def write_func(self, s: str) -> str:
+        return f"b'\\x00'.join((x.encode() for x in {s}))"
