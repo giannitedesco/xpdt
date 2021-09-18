@@ -35,7 +35,7 @@ _vlen_size = _vlen_fmt.size
 _vlen_unpack_from = _vlen_fmt.unpack_from
 _vlen_pack = _vlen_fmt.pack
 
-_enum_fmt = _Struct('=II')
+_enum_fmt = _Struct('=III')
 _enum_size = _enum_fmt.size
 _enum_unpack_from = _enum_fmt.unpack_from
 _enum_pack = _enum_fmt.pack
@@ -109,7 +109,7 @@ class _XpdtBase:
                    ) -> _G[_T, None, None]:
         raise NotImplementedError
 
-    def _enum_wrap(self) -> bytes:
+    def _enum_wrap(self, ts: int) -> bytes:
         raise NotImplementedError
 
     def _len_wrap(self,
@@ -198,11 +198,12 @@ $$x1b.write_methods(struct)$$
 
 #% if struct.has_discriminant %#
     def _enum_wrap(self,
+                   ts: int,
                    _p: _F[[int, int], bytes] = _enum_pack,
                    _d: int = _discr,
                    ) -> bytes:
         buf = bytes(self)
-        tot_len = _p(len(buf), _d)
+        tot_len = _p(len(buf), _d, ts)
         return tot_len + buf
 #% endif %#
 
@@ -244,14 +245,14 @@ class $$namespace.name.title()$$:
                   _unp: _F[[bytes, int], _Tup[int, ...]] = _enum_unpack_from,
                   _hdr_len: int = _enum_size,
                   _clsmap: _M[int, _Typ[_XpdtBase]] = structs,
-                  ) -> _G[_XpdtBase, None, None]:
+                  ) -> _G[_Tup[int, _XpdtBase], None, None]:
         tot_len = len(buf)
         off = 0
         while off < tot_len:
-            rec_len, discr = _unp(buf, off)
+            rec_len, discr, ts = _unp(buf, off)
             off += _hdr_len
             t = _clsmap[discr]
-            yield t._frombuf(buf, off)
+            yield ts, t._frombuf(buf, off)
             off += rec_len
 
     @classmethod

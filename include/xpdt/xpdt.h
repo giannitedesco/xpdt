@@ -39,6 +39,7 @@
 typedef uint32_t xpdt_reclen_t;
 typedef uint32_t xpdt_buflen_t;
 typedef uint32_t xpdt_discriminant_t;
+typedef uint64_t xpdt_timestamp_t;
 
 struct xpdt_sized {
 	xpdt_buflen_t tot_len;
@@ -47,8 +48,10 @@ struct xpdt_sized {
 struct xpdt_enum {
 	xpdt_buflen_t tot_len;
 	xpdt_discriminant_t discr;
+	xpdt_timestamp_t timestamp;
 } __attribute__((packed));
 
 typedef struct xostream *xostream_t;
 uint8_t *xostream_prepare(xostream_t, size_t);
 bool xostream_commit(xostream_t, size_t);
+xpdt_timestamp_t xostream_get_timestamp(void);
