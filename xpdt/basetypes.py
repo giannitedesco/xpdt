@@ -2,8 +2,7 @@ from typing import Dict
 from enum import Enum
 
 from .integraltype import IntegralType
-from .buftype import BufType
-from .utf8type import Utf8Type
+from .buftypes import BufType, Utf8Type, ByteArrayType
 from .uuidtype import UuidType
 from .typedef import TypeDef
 
@@ -14,6 +13,8 @@ __all__ = (
 
 Bytes = BufType()
 Utf8 = Utf8Type()
+ByteArray = ByteArrayType()
+
 xu128 = UuidType()
 UnsignedInt8 = IntegralType(8, False)
 SignedInt8 = IntegralType(8, True)
@@ -30,6 +31,8 @@ class BaseType(TypeDef, Enum):
 
     bytes = 'bytes', Bytes
     utf8 = 'utf8', Utf8
+    bytearray = 'bytearray', ByteArray
+
     u8 = 'u8', UnsignedInt8
     i8 = 'i8', SignedInt8
     u16 = 'u16', UnsignedInt16
