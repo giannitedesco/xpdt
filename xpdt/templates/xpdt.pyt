@@ -41,6 +41,28 @@ _enum_unpack_from = _enum_fmt.unpack_from
 _enum_pack = _enum_fmt.pack
 
 
+def _encode_intstack(field: _Tup[int],
+                     mask: int,
+                     width: int,
+                     ) -> int:
+    val = 0
+    for f in field:
+        val <<= width
+        val |= (f & mask)
+    return val
+
+
+def _decode_intstack(raw: int,
+                     mask: int,
+                     width: int,
+                     ) -> _Tup[int]:
+    stk = []
+    while raw:
+        stk.append(raw & mask)
+        raw >>= width
+    return tuple(reversed(stk))
+
+
 class _XpdtBase:
     __slots__ = ()
 

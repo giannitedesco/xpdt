@@ -2,8 +2,12 @@
 buf[off_$$vbuf_var.value$$:off_$$vbuf_var.value + 1$$]
 #%- endmacro -%#
 
-#%- macro decoded_var(elem, vbuf_var) -%#
+#%- macro decoded_buf(elem, vbuf_var) -%#
 $$elem.member.type.read_func(buf_slice(vbuf_var))$$
+#%- endmacro -%#
+
+#%- macro decoded_scalar(elem) -%#
+$$elem.member.type.read_func(elem.python_var_name)$$
 #%- endmacro -%#
 
 #%- macro construct_object(elem, vbuf_var) -%#
@@ -13,8 +17,10 @@ $$elem.member.type.struct_name$$(
 ),
 ##- else:
 ##-   if elem.member.type.needs_vbuf
-$$decoded_var(elem, vbuf_var)$$,
+$$decoded_buf(elem, vbuf_var)$$,
 ##-     set vbuf_var.value = vbuf_var.value + 1
+##-   elif elem.member.type.needs_decode
+$$decoded_scalar(elem)$$,
 ##-   else
 $$elem.python_var_name$$,
 ##-   endif
@@ -42,6 +48,8 @@ $$elem.member.type.write_func(get_member(elem.full_path_names))$$
 ## for e in struct.all_members
 ##   if e.member.type.needs_vbuf
                 $$e.python_var_name$$_len,
+##   elif e.member.type.needs_decode
+                $$encoded_var(e)$$,
 ##   else
                 self.$$ ".".join(e.full_path_names) $$,
 ##   endif

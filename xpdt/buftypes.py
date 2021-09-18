@@ -33,6 +33,10 @@ class BufBase(XpdtType):
     def needs_vbuf(self) -> bool:
         return True
 
+    @property
+    def needs_decode(self) -> bool:
+        return True
+
 
 class BufType(BufBase):
     __slots__ = ()

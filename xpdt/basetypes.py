@@ -4,6 +4,7 @@ from enum import Enum
 from .integraltype import IntegralType
 from .buftypes import BufType, Utf8Type, ByteArrayType, StringArrayType
 from .uuidtype import UuidType
+from .intstack import IntStackType
 from .typedef import TypeDef
 
 __all__ = (
@@ -27,6 +28,10 @@ SignedInt64 = IntegralType(64, True)
 
 Uuid = UuidType()
 
+IntStack8 = IntStackType(8)
+IntStack16 = IntStackType(16)
+IntStack32 = IntStackType(32)
+
 
 class BaseType(TypeDef, Enum):
     __slots__ = ()
@@ -47,6 +52,10 @@ class BaseType(TypeDef, Enum):
 
     u128 = 'u128', Uuid
     uuid = 'uuid', Uuid
+
+    intstack8 = 'intstack8', IntStack8
+    intstack16 = 'intstack16', IntStack16
+    intstack32 = 'intstack32', IntStack32
 
 
 def base_types() -> Dict[str, TypeDef]:

@@ -27,3 +27,7 @@ class UuidType(XpdtType):
     @property
     def needs_vbuf(self) -> bool:
         return False
+
+    @property
+    def needs_decode(self) -> bool:
+        return False

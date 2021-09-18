@@ -78,7 +78,8 @@ class StructDef:
 
     @property
     def all_members_scalar(self) -> bool:
-        return all((t.is_scalar for t in self.member_types))
+        return all((t.is_scalar and not t.needs_decode
+                    for t in self.member_types))
 
     @property
     def all_members(self) -> Generator[ConstructElement, None, None]:
@@ -101,10 +102,11 @@ class StructDef:
                 and elem.member.type.needs_vbuf)
 
     @property
-    def scalar_members(self) -> Generator[Tuple[str, ...], None, None]:
-        return (elem.full_path_names for elem in
+    def scalar_members(self) -> Generator[ConstructElement, None, None]:
+        return (elem for elem in
                 self.construct_recursive()
-                if elem.action == ConstructAction.MEMBER)
+                if elem.action == ConstructAction.MEMBER
+                and elem.member.is_scalar)
 
     @property
     def python_var_names(self) -> Generator[str, None, None]:
@@ -208,6 +210,10 @@ class StructType(XpdtType):
         return any((t.needs_vbuf for t in self._member_types))
 
     @property
+    def needs_decode(self) -> bool:
+        raise NotImplementedError
+
+    @property
     def pytype(self) -> str:
         return self._struct.name
 
@@ -229,5 +235,5 @@ class StructType(XpdtType):
         )
 
     @property
-    def scalar_members(self) -> Generator[Tuple[str, ...], None, None]:
+    def scalar_members(self) -> Generator[ConstructElement, None, None]:
         yield from self._struct.scalar_members

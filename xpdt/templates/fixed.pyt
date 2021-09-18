@@ -8,13 +8,29 @@ $$elem.python_var_name$$,
 ##- endif
 #%- endmacro -%#
 
+#%- macro get_member(e) -%#
+self.$$ ".".join(e.full_path_names) $$
+#%- endmacro -%#
+
+#%- macro encoded_var(elem) -%#
+$$elem.member.type.write_func(get_member(elem))$$
+#%- endmacro -%#
+
+#%- macro decoded_var(elem) -%#
+$$elem.member.type.read_func(get_member(elem))$$
+#%- endmacro -%#
+
 #% macro write_methods(struct) %#
 
     def __bytes__(self) -> bytes:
         # FIXME: This can be more efficient
         return self._pack(
-## for member in struct.scalar_members
-            self.$$ ".".join(member) $$,
+## for e in struct.scalar_members
+##  if e.member.type.needs_decode
+            $$encoded_var(e)$$,
+##  else
+            $$get_member(e)$$,
+##  endif
 ## endfor
         )
 
@@ -30,8 +46,12 @@ $$elem.python_var_name$$,
 ## endfor
         ) = unp(buf, off)
         ret = cls(
-## for e in struct.construct_recursive(include_reserved=False)
+## for e in struct.scalar_members
+##  if e.member.type.needs_decode
+$$e.indent('    ', 3)$$$$decoded_var(e)$$,
+##  else
 $$e.indent('    ', 3)$$$$construct_object(e)$$
+##  endif
 ## endfor
         )
         return ret

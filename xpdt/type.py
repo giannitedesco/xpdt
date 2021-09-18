@@ -75,6 +75,10 @@ class XpdtType(ABC):
     def needs_vbuf(self) -> bool: ...
 
     @property
+    @abstractmethod
+    def needs_decode(self) -> bool: ...
+
+    @property
     def size(self) -> int:
         return calcsize(self.struct_fmt)
 
@@ -95,5 +99,5 @@ class XpdtType(ABC):
         raise NotImplementedError
 
     @property
-    def scalar_members(self) -> Generator[Tuple[str, ...], None, None]:
+    def scalar_members(self) -> Generator[ConstructElement, None, None]:
         raise NotImplementedError
