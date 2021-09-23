@@ -2,6 +2,14 @@
 # xpdt is written by Gianni Tedesco
 # https://www.scaramanga.co.uk
 
+#%- macro enumclass() -%#
+$$namespace.python_enum_name$$
+#%- endmacro -%#
+
+#%- macro basetype() -%#
+$$namespace.python_type_name$$
+#%- endmacro %#
+
 ## import 'fixed.pyt' as x1b
 ## import 'vbuf.pyt' as x1v
 from struct import Struct as _Struct
@@ -23,12 +31,16 @@ from typing import (
 )
 
 __all__ = (
+    '$$basetype()$$',
 #% for struct in namespace %#
     '$$struct.name$$',
 #% endfor %#
+#% if namespace.has_name %#
+    '$$enumclass()$$',
+#% endif %#
 )
 
-_T = _TV('_T', bound='_XpdtBase')
+_T = _TV('_T', bound='$$basetype()$$')
 
 _vlen_fmt = _Struct('=I')
 _vlen_size = _vlen_fmt.size
@@ -41,7 +53,7 @@ _enum_unpack_from = _enum_fmt.unpack_from
 _enum_pack = _enum_fmt.pack
 
 
-def _encode_intstack(field: _Tup[int],
+def _encode_intstack(field: _Tup[int, ...],
                      mask: int,
                      width: int,
                      ) -> int:
@@ -55,7 +67,7 @@ def _encode_intstack(field: _Tup[int],
 def _decode_intstack(raw: int,
                      mask: int,
                      width: int,
-                     ) -> _Tup[int]:
+                     ) -> _Tup[int, ...]:
     stk = []
     while raw:
         stk.append(raw & mask)
@@ -63,14 +75,14 @@ def _decode_intstack(raw: int,
     return tuple(reversed(stk))
 
 
-class _XpdtBase:
+class $$basetype()$$:
     __slots__ = ()
 
     _unpack_from: _F[[memoryview, int], _Tup[int, ...]]
     _fmt_size: int
     _discr: _O[int] = None
 
-    # These methods are defined in order to allow _XpdtBase class to be a
+    # These methods are defined in order to allow $$basetype()$$ class to be a
     # placeholder for any of the below classes. They should never be called
     # since the derived classes will provide their own implementations.
     @classmethod
@@ -140,7 +152,7 @@ class _$$struct.name$$_tuple(_NTup):
 #% endfor %#
 
 
-class $$struct.name$$(_$$struct.name$$_tuple, _XpdtBase):
+class $$struct.name$$(_$$struct.name$$_tuple, $$basetype()$$):
     __slots__ = ()
 
 #% if struct.has_discriminant %#
@@ -199,7 +211,7 @@ $$x1b.write_methods(struct)$$
 #% if struct.has_discriminant %#
     def _enum_wrap(self,
                    ts: int,
-                   _p: _F[[int, int], bytes] = _enum_pack,
+                   _p: _F[[int, int, int], bytes] = _enum_pack,
                    _d: int = _discr,
                    ) -> bytes:
         buf = bytes(self)
@@ -222,7 +234,7 @@ $$write_class(struct)$$
 #%- if namespace.has_name %#
 
 
-class $$namespace.name.title()$$:
+class $$enumclass()$$:
     __slots__ = ()
 
     struct_names = frozenset({
@@ -231,7 +243,7 @@ class $$namespace.name.title()$$:
 #% endfor %#
     })
 
-    structs: _M[int, _Typ[_XpdtBase]] = {
+    structs: _M[int, _Typ[$$basetype()$$]] = {
 #% for struct in namespace %#
 #% if struct.has_discriminant %#
         $$struct.discriminant$$: $$struct.name$$,
@@ -244,8 +256,8 @@ class $$namespace.name.title()$$:
                   buf: memoryview,
                   _unp: _F[[bytes, int], _Tup[int, ...]] = _enum_unpack_from,
                   _hdr_len: int = _enum_size,
-                  _clsmap: _M[int, _Typ[_XpdtBase]] = structs,
-                  ) -> _G[_Tup[int, _XpdtBase], None, None]:
+                  _clsmap: _M[int, _Typ[$$basetype()$$]] = structs,
+                  ) -> _G[_Tup[int, $$basetype()$$], None, None]:
         tot_len = len(buf)
         off = 0
         while off < tot_len:
@@ -258,8 +270,11 @@ class $$namespace.name.title()$$:
     @classmethod
     def from_file(cls,
                   p: _Path,
-                  ) -> _G[_XpdtBase, None, None]:
+                  ) -> _G[_Tup[int, $$basetype()$$], None, None]:
         with p.open('rb') as f:
-            content = _mmap(f.fileno(), 0, access=_PROT_READ)
+            try:
+                content = _mmap(f.fileno(), 0, access=_PROT_READ)
+            except ValueError:
+                return
             yield from cls.read_many(memoryview(content))
 #% endif %#

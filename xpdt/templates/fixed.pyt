@@ -17,7 +17,7 @@ $$elem.member.type.write_func(get_member(elem))$$
 #%- endmacro -%#
 
 #%- macro decoded_var(elem) -%#
-$$elem.member.type.read_func(get_member(elem))$$
+$$elem.member.type.read_func(elem.python_var_name)$$
 #%- endmacro -%#
 
 #% macro write_methods(struct) %#

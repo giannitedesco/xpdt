@@ -61,8 +61,25 @@ class NameSpace:
     def python_code(self) -> str:
         return self.python.render(namespace=self)
 
+    @property
+    def python_type_name(self) -> str:
+        name = self._name
+        if name is None:
+            return 'XpdtBase'
+        return f'{name.title()}Type'
+
+    @property
+    def python_enum_name(self) -> str:
+        name = self._name
+        assert name is not None
+        return name.title()
+
     def gen_dynamic_python(self) -> SimpleNamespace:
         names = {s.name for s in self}
+        names.add(self.python_type_name)
+        if self._name is not None:
+            names.add(self.python_enum_name)
+
         g: Dict[str, Any] = {}
         exec(self.python_code, g, g)
         return SimpleNamespace(**{x: g[x] for x in names})
