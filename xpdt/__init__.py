@@ -21,6 +21,7 @@ from .decl import MemberDecl, StructDecl
 from .namespace import NameSpace
 from .parse import parse, parse_file
 from .shiftreduce import ParseError
+from .load import load
 
 __all__ = (
     'XpdtType',
@@ -39,5 +40,8 @@ __all__ = (
 
     'parse',
     'parse_file',
+
     'ParseError',
+
+    'load',
 )

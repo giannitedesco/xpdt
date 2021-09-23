@@ -1,14 +1,9 @@
-from typing import Generator
 from argparse import ArgumentParser
 from pathlib import Path
 from sys import stdout
-from itertools import chain
 import logging
-import toml
 
-from xpdt import NameSpace, StructDecl
-from .parse import parse_file
-from .shiftreduce import ParseError
+from xpdt import NameSpace, load
 
 _fmt = logging.Formatter('%(message)s')
 _stdio_handler = logging.StreamHandler(stream=stdout)
@@ -64,64 +59,17 @@ def main() -> None:
     else:
         _log.setLevel(logging.INFO)
 
-    file_set = args.file
-    single = len(file_set) == 1
+    ns = load(
+        args.file,
+        registry=args.registry,
+        module_name=args.module_name,
+    )
 
-    if args.registry is not None:
-        registry = toml.load(args.registry)
-    else:
-        registry = {}
+    if ns.name is None:
+        ns.name = 'xpdt'
 
-    if args.module_name:
-        module_name = args.module_name
-    elif meta_name := registry.get('meta', {}).get('name'):
-        module_name = meta_name
-    elif single:
-        in_path, = file_set
-        module_name = in_path.stem
-    else:
-        module_name = 'xpdt'
-
-    def parse(p: Path) -> Generator[StructDecl, None, None]:
-        try:
-            yield from parse_file(p)
-        except ParseError as e:
-            print(e)
-            raise SystemExit(1)
-
-    def parse_with_prefix(p: Path) -> Generator[StructDecl, None, None]:
-        name = p.stem
-
-        if registry:
-            module_id = registry['modules'][name]
-            struct_map = registry['module'][name]
-        else:
-            module_id = 0
-            struct_map = {}
-
-        assert 0 <= module_id <= 0xffff
-
-        for s in parse(p):
-            decl = s.with_prefix(name)
-
-            if registry:
-                struct_name = s.struct_name
-                struct_id = struct_map[struct_name]
-
-                assert 0 <= struct_id <= 0xffff
-
-                discriminant = (module_id << 16) | struct_id
-                decl = decl.with_discriminant(discriminant)
-
-            yield decl
-
-    if single:
-        in_file, = file_set
-        decls = tuple(parse(in_file))
-    else:
-        decls = tuple(chain(*map(parse_with_prefix, file_set)))
-
-    ns = NameSpace.from_decls(decls, name=module_name)
+    name = ns.name
+    assert name is not None
 
     backends = {
         'c': gen_c,
@@ -136,7 +84,8 @@ def main() -> None:
         raise SystemExit(1)
 
     args.out.mkdir(exist_ok=True)
-    fn(ns, args.out, module_name)
+
+    fn(ns, args.out, name)
 
 
 if __name__ == '__main__':

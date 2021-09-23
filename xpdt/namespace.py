@@ -47,6 +47,10 @@ class NameSpace:
     def name(self) -> Optional[str]:
         return self._name
 
+    @name.setter
+    def name(self, name: Optional[str]) -> None:
+        self._name = name
+
     @property
     def has_name(self) -> bool:
         return self._name is not None
