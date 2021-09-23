@@ -334,11 +334,11 @@ bool /*{wr_sized(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 	/*{sized(struct)}*/ *ptr;
 // if struct.needs_vbuf
 	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+	xpdt_buflen_t str_len;
+	uint8_t *buf;
 // else
 	const size_t tot_len = sizeof(*ptr);
 // endif
-	xpdt_buflen_t str_len;
-	uint8_t *buf;
 
 	ptr = (/*{sized(struct)}*/ *)xostream_prepare(out, tot_len);
 	if (xpdt_unlikely(ptr == NULL)) {
@@ -346,7 +346,11 @@ bool /*{wr_sized(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 	}
 
 	ptr->hdr.tot_len = tot_len;
+// if struct.needs_vbuf
 	ptr->fixed = /*{fixed_ctor(struct)}*/(obj);
+// else
+	ptr->fixed = obj;
+// endif
 
 // if struct.needs_vbuf
 	buf = ptr->vbuf;
@@ -382,11 +386,11 @@ bool /*{wr_wrapped(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 	/*{wrapped(struct)}*/ *ptr;
 // if struct.needs_vbuf
 	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+	xpdt_buflen_t str_len;
+	uint8_t *buf;
 // else
 	const size_t tot_len = sizeof(*ptr);
 // endif
-	xpdt_buflen_t str_len;
-	uint8_t *buf;
 
 	ptr = (/*{wrapped(struct)}*/ *)xostream_prepare(out, tot_len);
 	if (xpdt_unlikely(ptr == NULL)) {
@@ -395,8 +399,12 @@ bool /*{wr_wrapped(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 
 	ptr->hdr.tot_len = tot_len;
 	ptr->hdr.discr = 0x/*{struct.discriminant|hex32}*/;
-	ptr->hdr.stamp = xostream_get_timestamp();
+	ptr->hdr.timestamp = xostream_get_timestamp();
+// if struct.needs_vbuf
 	ptr->fixed = /*{fixed_ctor(struct)}*/(obj);
+// else
+	ptr->fixed = obj;
+// endif
 
 // if struct.needs_vbuf
 	buf = ptr->vbuf;
@@ -463,13 +471,18 @@ const /*{struct_fixed(struct)}*/ *
 /*{rd_sized(struct)}*/(struct xbuf_iter *it, /*{ptrs_struct(struct)}*/ *ptrs)
 {
 	const /*{sized(struct)}*/ *e;
-	const uint8_t *buf, *ptr, *end;
+	const uint8_t *ptr, *end;
+/*# if struct.needs_vbuf #*/
+	const uint8_t *buf;
+/*# endif #*/
 
 	ptr = it->it_ptr;
 	end = it->it_end;
 
 	e = (/*{sized(struct)}*/ *)ptr;
+/*# if struct.needs_vbuf #*/
 	buf = e->vbuf;
+/*# endif #*/
 	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
 		return NULL;
 
