@@ -468,7 +468,11 @@ const /*{struct_fixed(struct)}*/ *
 
 static inline
 const /*{struct_fixed(struct)}*/ *
+/*# if struct.needs_vbuf #*/
 /*{rd_sized(struct)}*/(struct xbuf_iter *it, /*{ptrs_struct(struct)}*/ *ptrs)
+/*# else #*/
+/*{rd_sized(struct)}*/(struct xbuf_iter *it)
+/*# endif #*/
 {
 	const /*{sized(struct)}*/ *e;
 	const uint8_t *ptr, *end;

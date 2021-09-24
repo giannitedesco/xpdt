@@ -19,7 +19,9 @@
 /*{macros.fixed_struct_decl(struct)}*/
 /*# endif #*/
 /*{macros.len_wrapped_struct_decl(struct)}*/
+/*# if struct.needs_vbuf #*/
 /*{macros.vbuf_struct_decl(struct)}*/
+/*# endif #*/
 /*#- endfor #*/
 /*# for struct in namespace #*/
 
