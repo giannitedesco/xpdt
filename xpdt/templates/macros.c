@@ -119,10 +119,8 @@
 /*#- endmacro -#*/
 
 
-/*#- macro naturally_packed(struct) -#*/
-/*# if struct.needs_vbuf #*/
+/*#- macro naturally_packed(struct) #*/
  __attribute__((packed))
-/*#- endif #*/
 /*#- endmacro -#*/
 
 
@@ -333,19 +331,20 @@ bool /*{wr_sized(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 {
 	/*{sized(struct)}*/ *ptr;
 // if struct.needs_vbuf
-	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+	const size_t rec_len = sizeof(ptr->fixed) + /*{bufreq(struct)}*/(obj);
 	xpdt_buflen_t str_len;
 	uint8_t *buf;
 // else
-	const size_t tot_len = sizeof(*ptr);
+	const size_t rec_len = sizeof(ptr->fixed);
 // endif
+	const size_t tot_len = rec_len + sizeof(ptr->hdr);
 
 	ptr = (/*{sized(struct)}*/ *)xostream_prepare(out, tot_len);
 	if (xpdt_unlikely(ptr == NULL)) {
 		return false;
 	}
 
-	ptr->hdr.tot_len = tot_len;
+	ptr->hdr.rec_len = rec_len;
 // if struct.needs_vbuf
 	ptr->fixed = /*{fixed_ctor(struct)}*/(obj);
 // else
@@ -385,19 +384,20 @@ bool /*{wr_wrapped(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 {
 	/*{wrapped(struct)}*/ *ptr;
 // if struct.needs_vbuf
-	const size_t tot_len = sizeof(*ptr) + /*{bufreq(struct)}*/(obj);
+	const size_t rec_len = sizeof(ptr->fixed) + /*{bufreq(struct)}*/(obj);
 	xpdt_buflen_t str_len;
 	uint8_t *buf;
 // else
-	const size_t tot_len = sizeof(*ptr);
+	const size_t rec_len = sizeof(ptr->fixed);
 // endif
+	const size_t tot_len = rec_len + sizeof(ptr->hdr);
 
 	ptr = (/*{wrapped(struct)}*/ *)xostream_prepare(out, tot_len);
 	if (xpdt_unlikely(ptr == NULL)) {
 		return false;
 	}
 
-	ptr->hdr.tot_len = tot_len;
+	ptr->hdr.rec_len = rec_len;
 	ptr->hdr.discr = 0x/*{struct.discriminant|hex32}*/;
 	ptr->hdr.timestamp = xostream_get_timestamp();
 // if struct.needs_vbuf
@@ -490,7 +490,7 @@ const /*{struct_fixed(struct)}*/ *
 	if (xpdt_unlikely((uint8_t *)&e->fixed > end))
 		return NULL;
 
-	ptr += e->hdr.tot_len;
+	ptr += e->hdr.rec_len;
 	if (xpdt_unlikely(ptr > end))
 		return NULL;
 /*# for path in struct.c_named_initializers_x1v #*/

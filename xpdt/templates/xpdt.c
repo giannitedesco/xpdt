@@ -6,9 +6,9 @@
  * https://github.com/giannitedesco/xpdt
  */
 
-#include <stdlib.h>
-
-#include /*{xpdt_hdr.path_spec}*/
+/*# for hdr in headers #*/
+#include /*{hdr.path_spec}*/
+/*# endfor #*/
 
 /* ==== structs ==== */
 

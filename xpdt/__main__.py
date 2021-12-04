@@ -1,3 +1,4 @@
+from typing import ClassVar, TextIO, Optional
 from argparse import ArgumentParser
 from pathlib import Path
 from sys import stdout
@@ -12,18 +13,69 @@ _log = logging.getLogger('xpdt')
 _log.addHandler(_stdio_handler)
 
 
-def gen_c(ns: NameSpace, base: Path, module_name: str) -> None:
-    p = base / f'{module_name}.h'
-    _log.info('Writing code: %s', p)
-    with p.open('w') as f:
-        ns.gen_c(f)
+class BackendDef:
+    suffix: ClassVar[str]
+
+    __slots__ = (
+        '_p',
+        '_ns',
+        '_inc_prefix',
+    )
+
+    _p: Path
+    _ns: NameSpace
+    _inc_prefix: Optional[str]
+
+    def _name(self, base: Path, name: str) -> Path:
+        return base / (name + self.suffix)
+
+    def __init__(self, ns: NameSpace, base: Path,
+                 inc_prefix: Optional[str] = None) -> None:
+        self._ns = ns
+        name = ns.name
+        assert name is not None
+        self._p = self._name(base, name)
+        self._inc_prefix = inc_prefix
+
+    def _gen(self, f: TextIO) -> None:
+        raise NotImplementedError
+
+    def gen(self) -> None:
+        _log.info('Writing code: %s', self._p)
+        with self._p.open('w') as f:
+            return self._gen(f)
 
 
-def gen_py(ns: NameSpace, base: Path, module_name: str) -> None:
-    p = base / f'{module_name}.py'
-    _log.info('Writing code: %s', p)
-    with p.open('w') as f:
-        ns.gen_python(f)
+class OutputC(BackendDef):
+    suffix = '_impl.h'
+    __slots__ = ()
+
+    def _gen(self, f: TextIO) -> None:
+        self._ns.gen_c(f)
+
+
+class OutputCAPI(BackendDef):
+    suffix = '.c'
+    __slots__ = ()
+
+    def _gen(self, f: TextIO) -> None:
+        self._ns.gen_c_api_entries(f, self._inc_prefix)
+
+
+class OutputCHdr(BackendDef):
+    suffix = '_api.h'
+    __slots__ = ()
+
+    def _gen(self, f: TextIO) -> None:
+        self._ns.gen_c_api_hdr(f)
+
+
+class OutputPy(BackendDef):
+    suffix = '.py'
+    __slots__ = ()
+
+    def _gen(self, f: TextIO) -> None:
+        self._ns.gen_python(f)
 
 
 def main() -> None:
@@ -48,6 +100,9 @@ def main() -> None:
                       default=Path(),
                       type=Path,
                       help='Output dir')
+    opts.add_argument('-I',
+                      dest='inc_prefix',
+                      help='Include path (for C headers)')
     opts.add_argument('file',
                       type=Path,
                       nargs='+',
@@ -68,24 +123,23 @@ def main() -> None:
     if ns.name is None:
         ns.name = 'xpdt'
 
-    name = ns.name
-    assert name is not None
-
     backends = {
-        'c': gen_c,
-        'py': gen_py,
-        'python': gen_py,
+        'c': OutputC,
+        'capi': OutputCAPI,
+        'chdr': OutputCHdr,
+        'py': OutputPy,
+        'python': OutputPy,
     }
 
     try:
-        fn = backends[args.language]
+        cls = backends[args.language]
     except KeyError:
         print(f'Unknown language: "{args.language}"')
         raise SystemExit(1)
 
     args.out.mkdir(exist_ok=True)
-
-    fn(ns, args.out, name)
+    backend = cls(ns, args.out, args.inc_prefix)
+    backend.gen()
 
 
 if __name__ == '__main__':

@@ -47,7 +47,7 @@ _vlen_size = _vlen_fmt.size
 _vlen_unpack_from = _vlen_fmt.unpack_from
 _vlen_pack = _vlen_fmt.pack
 
-_enum_fmt = _Struct('=III')
+_enum_fmt = _Struct('=IIQ')
 _enum_size = _enum_fmt.size
 _enum_unpack_from = _enum_fmt.unpack_from
 _enum_pack = _enum_fmt.pack

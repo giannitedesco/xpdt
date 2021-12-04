@@ -10,7 +10,7 @@ from .basetypes import base_types
 from .member import MemberDef
 from .struct import StructDef, StructType
 from .jinja import ctemplate, pytemplate
-from .c import SysInclude
+from .c import Include, SysInclude, RelInclude
 
 __all__ = (
     'NameSpace',
@@ -27,6 +27,8 @@ class NameSpace:
     _structs: Dict[str, StructDef]
 
     c = ctemplate.get_template('xpdt.c')
+    chdr = ctemplate.get_template('apihdr.c')
+    capi = ctemplate.get_template('api.c')
     python = pytemplate.get_template('xpdt.pyt')
 
     def __init__(self,
@@ -92,14 +94,44 @@ class NameSpace:
         f.write(self.python_code)
 
     def gen_c(self, f: TextIO) -> None:
-        xpdt_hdr = SysInclude('xpdt/xpdt.h')
         headers = (
+            SysInclude('stdlib.h'),
+            SysInclude('xpdt/xpdt.h'),
         )
 
         code = self.c.render(
             headers=headers,
             namespace=self,
-            xpdt_hdr=xpdt_hdr,
+        )
+        f.write(code)
+
+    def gen_c_api_entries(self, f: TextIO,
+                          inc_prefix: Optional[str] = None,
+                          ) -> None:
+        api_hdr: Include
+        if not inc_prefix:
+            api_hdr = RelInclude(f'{self.name}_api.h')
+        else:
+            api_hdr = SysInclude(f'{inc_prefix}/{self.name}_api.h')
+
+        headers = (
+            api_hdr,
+            RelInclude(f'{self.name}_impl.h'),
+        )
+
+        code = self.capi.render(
+            headers=headers,
+            namespace=self,
+        )
+        f.write(code)
+
+    def gen_c_api_hdr(self, f: TextIO) -> None:
+        headers = (
+            SysInclude('xpdt/xpdt.h'),
+        )
+        code = self.chdr.render(
+            headers=headers,
+            namespace=self,
         )
         f.write(code)
 

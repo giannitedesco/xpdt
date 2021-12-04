@@ -42,11 +42,11 @@ typedef uint32_t xpdt_discriminant_t;
 typedef uint64_t xpdt_timestamp_t;
 
 struct xpdt_sized {
-	xpdt_buflen_t tot_len;
+	xpdt_buflen_t rec_len;
 } __attribute__((packed));
 
 struct xpdt_enum {
-	xpdt_buflen_t tot_len;
+	xpdt_buflen_t rec_len;
 	xpdt_discriminant_t discr;
 	xpdt_timestamp_t timestamp;
 } __attribute__((packed));
