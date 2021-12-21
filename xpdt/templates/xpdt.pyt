@@ -2,6 +2,8 @@
 # xpdt is written by Gianni Tedesco
 # https://www.scaramanga.co.uk
 
+# flake8: noqa: E501
+
 #%- macro enumclass() -%#
 $$namespace.python_enum_name$$
 #%- endmacro -%#
