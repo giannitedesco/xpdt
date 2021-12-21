@@ -30,6 +30,7 @@ from typing import (
     Any as _Any,
     Optional as _O,
     Mapping as _M,
+    Dict as _Dict,
 )
 
 __all__ = (
@@ -89,6 +90,10 @@ class $$basetype()$$:
     # since the derived classes will provide their own implementations.
     @classmethod
     def __new__(cls: _Typ[_T], *args: _Any) -> _T:
+        raise NotImplementedError
+
+    # because we always mix in with namedtuple
+    def _asdict(self) -> _Dict[str, _Any]:
         raise NotImplementedError
 
     def __bytes__(self) -> bytes:
