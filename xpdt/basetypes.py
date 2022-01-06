@@ -34,8 +34,6 @@ IntStack32 = IntStackType(32)
 
 
 class BaseType(TypeDef, Enum):
-    __slots__ = ()
-
     bytes = 'bytes', Bytes
     utf8 = 'utf8', Utf8
     bytearray = 'bytearray', ByteArray
