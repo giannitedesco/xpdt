@@ -281,7 +281,7 @@ class $$enumclass()$$:
     @classmethod
     def from_file(cls,
                   p: _Path,
-                  ) -> _G[_Tup[int, $$basetype()$$], None, None]:
+                  ) -> _G[_U[_Tup[int, $$basetype()$$], Exception], None, None]:
         with p.open('rb') as f:
             try:
                 content = _mmap(f.fileno(), 0, access=_PROT_READ)
