@@ -31,6 +31,7 @@ from typing import (
     Optional as _O,
     Mapping as _M,
     Dict as _Dict,
+    Union as _U,
 )
 
 __all__ = (
@@ -264,14 +265,17 @@ class $$enumclass()$$:
                   _unp: _F[[bytes, int], _Tup[int, ...]] = _enum_unpack_from,
                   _hdr_len: int = _enum_size,
                   _clsmap: _M[int, _Typ[$$basetype()$$]] = structs,
-                  ) -> _G[_Tup[int, $$basetype()$$], None, None]:
+                  ) -> _G[_U[_Tup[int, $$basetype()$$], Exception], None, None]:
         tot_len = len(buf)
         off = 0
         while off < tot_len:
             rec_len, discr, ts = _unp(buf, off)
             off += _hdr_len
             t = _clsmap[discr]
-            yield ts, t._frombuf(buf, off)
+            try:
+                yield ts, t._frombuf(buf, off)
+            except (ValueError, UnicodeDecodeError) as e:
+                yield e
             off += rec_len
 
     @classmethod
