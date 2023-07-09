@@ -31,22 +31,24 @@ struct xbuf {
 	size_t len;
 };
 
-#define XBUF_INIT(_len, _ptr) \
-	(struct xbuf){.len = _len, .ptr = _ptr}
+#define XBUF_INIT(_ptr, _len) \
+	((struct xbuf){.ptr = _ptr, .len = _len})
 
 #define XBUF_NIL \
-	XBUF_INIT(0, NULL)
+	XBUF_INIT(NULL, 0)
 
-static inline struct xbuf xbuf(size_t len,
-				const uint8_t buf[static len])
+static inline struct xbuf xbuf(const size_t len;
+				const uint8_t buf[static const len],
+				const size_t len)
 {
-	return XBUF_INIT(len, buf);
+	return XBUF_INIT(buf, len);
 }
 
-static inline struct xbuf xbuf_str(size_t len,
-				const char buf[static len])
+static inline struct xbuf xbuf_str(const size_t len;
+				const char buf[static const len],
+				const size_t len)
 {
-	return XBUF_INIT(len, (uint8_t *)buf);
+	return XBUF_INIT((uint8_t *)buf, len);
 }
 
 static inline struct xbuf xbuf_nil(void)
@@ -56,10 +58,15 @@ static inline struct xbuf xbuf_nil(void)
 
 static inline struct xbuf xbuf_cstring(const char *str)
 {
-	return XBUF_INIT(strlen(str), (uint8_t *)str);
+	return xbuf_str(str, strlen(str));
 }
 
-static inline bool xbuf_isset(const struct xbuf *str)
+static inline bool xbuf_is_set(const struct xbuf *str)
 {
 	return str->len;
+}
+
+static inline bool xbuf_is_nil(const struct xbuf *str)
+{
+	return !str->len;
 }

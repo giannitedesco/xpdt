@@ -51,7 +51,20 @@ struct xpdt_enum {
 	xpdt_timestamp_t timestamp;
 } __attribute__((packed));
 
+/* Define this structure to whatever you want to be passed into below functions
+ */
 typedef struct xostream *xostream_t;
-uint8_t *xostream_prepare(xostream_t, size_t);
-bool xostream_commit(xostream_t, size_t);
+
+/* Define this function to return a pointer into the write buffer, there must
+ * be at least 'len' bytes available at the pointer.
+ */
+uint8_t *xostream_prepare(xostream_t xos, size_t len);
+
+/* This function is called after writing each recorrd. It informs the output
+ * layer that len bytes have been written into the output buffer at the pointer
+ * returned by xostream_prepare()
+ */
+bool xostream_commit(xostream_t xos, size_t len);
+
+/* Define this function to provide timestamps for enum-wrapped records */
 xpdt_timestamp_t xostream_get_timestamp(void);

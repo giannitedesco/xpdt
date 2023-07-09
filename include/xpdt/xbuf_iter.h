@@ -34,15 +34,21 @@ struct xbuf_iter {
 };
 
 #define XBUF_ITER_INIT(_ptr, _end) \
-	(struct xbuf_iter){.it_ptr = _ptr, .it_end = _end}
+	((struct xbuf_iter){.it_ptr = _ptr, .it_end = _end})
 
 #define XBUF_ITER_NIL \
 	XBUF_ITER_INIT(NULL, NULL)
 
-static inline struct xbuf_iter xbuf_iter_new(const size_t len,
-					const uint8_t buf[static len])
+static inline struct xbuf_iter xbuf_iter_new(const size_t len;
+					const uint8_t buf[static const len],
+					const size_t len)
 {
 	return XBUF_ITER_INIT(buf, buf + len);
+}
+
+static bool xbuf_iter_eof(const struct xbuf_iter it)
+{
+	return (it.it_ptr >= it.it_end);
 }
 
 static inline struct xbuf_iter xbuf_iter_nil(void)
@@ -52,8 +58,8 @@ static inline struct xbuf_iter xbuf_iter_nil(void)
 
 static inline const uint8_t *xbuf_iter_read(struct xbuf_iter *it, const size_t len)
 {
-	const uint8_t *ret = it->it_ptr;
-	const uint8_t *end = it->it_ptr + len;
+	const uint8_t * const ret = it->it_ptr;
+	const uint8_t * const end = it->it_ptr + len;
 
 	if (__builtin_expect(end > it->it_end, false))
 		return NULL;
@@ -62,15 +68,21 @@ static inline const uint8_t *xbuf_iter_read(struct xbuf_iter *it, const size_t l
 	return ret;
 }
 
+static inline size_t xbuf_iter_count_items_unchecked(const struct xbuf_iter it,
+							const size_t len)
+{
+	const size_t sz = it.it_end - it.it_ptr;
+
+	return sz / len;
+}
+
 static inline size_t xbuf_iter_count_items(const struct xbuf_iter it, const size_t len)
 {
-	size_t sz;
-
-	if (it.it_ptr >= it.it_end)
+	if (xbuf_iter_eof(it)) {
 		return 0;
+	}
 
-	sz = it.it_end - it.it_ptr;
-	return sz / len;
+	return xbuf_iter_count_items_unchecked(it, len);
 }
 
 static inline size_t xbuf_iter_bytes_remaining(const struct xbuf_iter it)

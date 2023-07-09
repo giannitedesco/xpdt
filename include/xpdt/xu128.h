@@ -43,10 +43,10 @@ struct _xu128_s {
 typedef struct _xu128_s xu128_t;
 
 #define XU128_INIT(_hi, _lo) \
-	(struct _xu128_s){ \
+	((struct _xu128_s){ \
 		.lo = _lo, \
 		.hi = _hi, \
-	}
+	})
 
 #define XU128_NIL XU128_INIT(0, 0)
 

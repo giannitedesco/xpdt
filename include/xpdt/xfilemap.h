@@ -33,23 +33,25 @@
 #include "xbuf_iter.h"
 
 struct xfilemap {
-	size_t m_len;
 	const uint8_t *m_map;
+	size_t m_len;
 };
 
-#define MAPFILE_INIT(_len, _map) \
-	(struct xfilemap){.m_len = _len, .m_map = _map}
+#define MAPFILE_INIT(_map, _len) \
+	((struct xfilemap){.m_map = _map, .m_len = _len})
 
 #define MAPFILE_NIL \
-	MAPFILE_INIT(0, NULL)
+	MAPFILE_INIT(NULL, 0)
 
-static inline struct xfilemap xfilemap_new(size_t len,
-					const uint8_t map[static len])
+static inline struct xfilemap xfilemap_new(const size_t len;
+					const uint8_t map[static const len],
+					const size_t len)
 {
-	return MAPFILE_INIT(len, map);
+	return MAPFILE_INIT(map, len);
 }
 
-static inline size_t xfilemap_count_items(const struct xfilemap *xf, size_t len)
+static inline size_t xfilemap_count_items(const struct xfilemap * const xf,
+						size_t len)
 {
 	return xf->m_len / len;
 }
@@ -57,32 +59,34 @@ static inline size_t xfilemap_count_items(const struct xfilemap *xf, size_t len)
 bool xfilemap_open(struct xfilemap *xf, const char *fn);
 void xfilemap_close(struct xfilemap *xf);
 
-static inline struct xbuf_iter xfilemap_iter(const struct xfilemap *xf)
+static inline struct xbuf_iter xfilemap_iter(const struct xfilemap * const xf)
 {
-	return xbuf_iter_new(xf->m_len, xf->m_map);
+	return xbuf_iter_new(xf->m_map, xf->m_len);
 }
 
-static inline struct xbuf_iter xfilemap_iter_slice(const struct xfilemap *xf,
+static inline struct xbuf_iter xfilemap_iter_slice(const struct xfilemap * const xf,
 							size_t from,
 							size_t len)
 {
 	assert(xf->m_len <= (from + len));
-	return xbuf_iter_new(len, xf->m_map + from);
+	return xbuf_iter_new(xf->m_map + from, len);
 }
 
-static inline struct xbuf_iter xfilemap_iter_items(const struct xfilemap *xf,
-							size_t item_size)
+static inline struct xbuf_iter xfilemap_iter_items(const struct xfilemap * const xf,
+							const size_t item_size)
 {
-	size_t trailer = xf->m_len % item_size;
-	return xbuf_iter_new(xf->m_len - trailer, xf->m_map);
+	const size_t trailer = xf->m_len % item_size;
+
+	return xbuf_iter_new(xf->m_map, xf->m_len - trailer);
 }
 
 static inline struct xbuf_iter xfilemap_iter_unrolled(const struct xfilemap *xf,
-							unsigned int burst_size,
-							size_t item_size,
-							unsigned int *trailer)
+							const unsigned int burst_size,
+							const size_t item_size,
+							unsigned int * const trailer)
 {
-	size_t nr_items = xf->m_len / item_size;
+	const size_t nr_items = xf->m_len / item_size;
+
 	*trailer = nr_items % burst_size;
 	return xfilemap_iter_items(xf, burst_size * item_size);
 }

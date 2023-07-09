@@ -517,7 +517,7 @@ static inline
 // for member in struct.non_reserved_members
 // if member.needs_vbuf
 // if member.is_scalar
-		./*{member.name}*/ = xbuf(rec->/*{member.name}*/, ptrs->/*{member.name}*/),
+		./*{member.name}*/ = xbuf(ptrs->/*{member.name}*/, rec->/*{member.name}*/),
 // else
 		./*{member.name}*/ = /*{member.type.struct.name}*/_construct(&rec->/*{member.name}*/, &ptrs->/*{member.name}*/),
 // endif
