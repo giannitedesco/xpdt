@@ -56,7 +56,7 @@ static inline struct xbuf_iter xbuf_iter_nil(void)
 	return XBUF_ITER_NIL;
 }
 
-static inline const uint8_t *xbuf_iter_read(struct xbuf_iter *it, const size_t len)
+static inline const void *xbuf_iter_read(struct xbuf_iter *it, const size_t len)
 {
 	const uint8_t * const ret = it->it_ptr;
 	const uint8_t * const end = it->it_ptr + len;
@@ -66,6 +66,12 @@ static inline const uint8_t *xbuf_iter_read(struct xbuf_iter *it, const size_t l
 
 	it->it_ptr = end;
 	return ret;
+}
+
+/* WARNING: This is unchecked, it's an optimization */
+static inline void xbuf_iter_advance(struct xbuf_iter *it, const size_t len)
+{
+	it->it_ptr += len;
 }
 
 static inline size_t xbuf_iter_count_items_unchecked(const struct xbuf_iter it,
