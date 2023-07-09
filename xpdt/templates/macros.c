@@ -180,6 +180,11 @@ struct /*{struct.name}*/ {
 /*#- endmacro -#*/
 
 
+/*#- macro stream(namespace) -#*/
+/*{namespace.name}*/_xostream
+/*#- endmacro #*/
+
+
 ################################################################################
 /*# macro discr_enum(namespace) #*/
 /*# if namespace.needs_discr_enum #*/
