@@ -78,6 +78,15 @@ class OutputPy(BackendDef):
         self._ns.gen_python(f)
 
 
+backends = {
+    'c': OutputC,
+    'capi': OutputCAPI,
+    'chdr': OutputCHdr,
+    'py': OutputPy,
+    'python': OutputPy,
+}
+
+
 def main() -> None:
     opts = ArgumentParser(description='xpdt: eXPeditious Data Transfer')
     opts.add_argument('--verbose', '-v',
@@ -95,7 +104,7 @@ def main() -> None:
     opts.add_argument('--language', '-l',
                       default='c',
                       type=str,
-                      help='Output language')
+                      help='Output language: %s' % ', '.join(backends.keys()))
     opts.add_argument('--out', '-o',
                       default=Path(),
                       type=Path,
@@ -122,14 +131,6 @@ def main() -> None:
 
     if ns.name is None:
         ns.name = 'xpdt'
-
-    backends = {
-        'c': OutputC,
-        'capi': OutputCAPI,
-        'chdr': OutputCHdr,
-        'py': OutputPy,
-        'python': OutputPy,
-    }
 
     try:
         cls = backends[args.language]
