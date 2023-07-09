@@ -56,8 +56,29 @@ static inline size_t xfilemap_count_items(const struct xfilemap * const xf,
 	return xf->m_len / len;
 }
 
-bool xfilemap_open(struct xfilemap *xf, const char *fn);
-void xfilemap_close(struct xfilemap *xf);
+bool xfilemap__open(struct xfilemap * const xf, const char * const fn, bool prefault);
+bool xfilemap__map(struct xfilemap * const xf, const int fd, bool prefault);
+void xfilemap_close(const struct xfilemap xf);
+
+static inline bool xfilemap_open(struct xfilemap * const xf, const char * const fn)
+{
+	return xfilemap__open(xf, fn, true);
+}
+
+static inline bool xfilemap_open_lazy(struct xfilemap * const xf, const char * const fn)
+{
+	return xfilemap__open(xf, fn, false);
+}
+
+static inline bool xfilemap_map(struct xfilemap * const xf, const int fd)
+{
+	return xfilemap__map(xf, fd, true);
+}
+
+static inline bool xfilemap_map_lazy(struct xfilemap * const xf, const int fd)
+{
+	return xfilemap__map(xf, fd, false);
+}
 
 static inline struct xbuf_iter xfilemap_iter(const struct xfilemap * const xf)
 {
