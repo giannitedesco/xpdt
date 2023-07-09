@@ -9,7 +9,7 @@ from xpdt import NameSpace, load
 _fmt = logging.Formatter('%(message)s')
 _stdio_handler = logging.StreamHandler(stream=stdout)
 _stdio_handler.setFormatter(_fmt)
-_log = logging.getLogger('xpdt')
+_log = logging.getLogger(__package__)
 _log.addHandler(_stdio_handler)
 
 
