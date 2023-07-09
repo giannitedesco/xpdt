@@ -46,6 +46,10 @@ class NameSpace:
         self._structs = {s.name: s for s in structs}
 
     @property
+    def needs_discr_enum(self) -> bool:
+        return any(s.has_discriminant for s in self._structs.values())
+
+    @property
     def name(self) -> Optional[str]:
         return self._name
 

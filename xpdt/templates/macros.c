@@ -3,6 +3,11 @@
 /*#- endmacro #*/
 
 
+/*#- macro struct_enum_entry(namespace, struct) -#*/
+/*{namespace.name.upper()}*/_/*{struct.name.upper()}*/
+/*#- endmacro #*/
+
+
 /*#- macro ctor(struct) -#*/
 /*{struct.name}*/__new
 /*#- endmacro -#*/
@@ -162,6 +167,36 @@ struct /*{struct.name}*/ {
 }/*{naturally_packed(struct)}*/;
 /*#- endmacro -#*/
 
+
+/*#- macro entry_name(namespace, struct) -#*/
+/*{namespace.name}*/_/*{struct.name}*/
+/*#- endmacro #*/
+
+
+/*#- macro cdecls(struct) -#*/
+/*{struct.non_reserved_members
+	| map(attribute="const_cdecl")
+	| join(",\n\t\t")}*/
+/*#- endmacro -#*/
+
+
+################################################################################
+/*# macro discr_enum(namespace) #*/
+/*# if namespace.needs_discr_enum #*/
+
+typedef enum /*{namespace.name}*/_discr_e
+#if __GNUC__ >= 13
+: xpdt_discriminant_t
+#endif
+{
+/*# for struct in namespace #*/
+/*# if struct.has_discriminant #*/
+	/*{struct_enum_entry(namespace, struct)}*/ = 0x/*{struct.discriminant|hex32}*/,
+/*# endif #*/
+/*# endfor #*/
+} /*{namespace.name}*/_discr_t;
+/*# endif #*/
+/*# endmacro #*/
 
 ################################################################################
 /*# macro fixed_struct_decl(struct) #*/
