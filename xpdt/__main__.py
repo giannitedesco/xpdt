@@ -78,12 +78,13 @@ class OutputPy(BackendDef):
         self._ns.gen_python(f)
 
 
+_c_lang = (OutputC, OutputCAPI, OutputCHdr)
+_py_lang = (OutputPy,)
+
 backends = {
-    'c': OutputC,
-    'capi': OutputCAPI,
-    'chdr': OutputCHdr,
-    'py': OutputPy,
-    'python': OutputPy,
+    'c': _c_lang,
+    'python': _py_lang,
+    'py': _py_lang,
 }
 
 
@@ -133,14 +134,15 @@ def main() -> None:
         ns.name = 'xpdt'
 
     try:
-        cls = backends[args.language]
+        file_generators = backends[args.language]
     except KeyError:
         print(f'Unknown language: "{args.language}"')
         raise SystemExit(1)
 
     args.out.mkdir(exist_ok=True)
-    backend = cls(ns, args.out, args.inc_prefix)
-    backend.gen()
+    for cls in file_generators:
+        backend = cls(ns, args.out, args.inc_prefix)
+        backend.gen()
 
 
 if __name__ == '__main__':
