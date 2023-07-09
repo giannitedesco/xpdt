@@ -29,6 +29,7 @@ setuptools.setup(
     platforms='any',
     packages=[
         pkg,
+        f'{pkg}.templates',
     ],
     url=v['__url__'],
     classifiers=[
