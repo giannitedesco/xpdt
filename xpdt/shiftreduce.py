@@ -52,9 +52,14 @@ _T = TypeVar('_T')
 class State(Generic[_T]):
     __slots__ = ()
 
-    def on(self: _T, *args: str) -> Callable[..., StateFunc[_T]]: ...
-    def default(self: _T) -> Callable[..., StateFunc[_T]]: ...
-    def __call__(self: _T, tok: Token) -> NextState[_T]: ...
+    def on(self: _T, *args: str) -> Callable[..., StateFunc[_T]]:
+        raise NotImplementedError
+
+    def default(self: _T) -> Callable[..., StateFunc[_T]]:
+        raise NotImplementedError
+
+    def __call__(self: _T, tok: Token) -> NextState[_T]:
+        raise NotImplementedError
 
 
 NextState = Optional[State[_T]]

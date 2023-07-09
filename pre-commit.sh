@@ -14,7 +14,6 @@ mypy \
 flake8 \
 	${pkgname} ${scripts}
 
-
 pycodestyle-3 \
 	${pkgname}
 

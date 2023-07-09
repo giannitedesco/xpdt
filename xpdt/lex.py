@@ -48,7 +48,7 @@ def lex(s: str,
         begin, end = m.span()
         pos = end
         if grp not in _ignored:
-            assert(grp is not None)
+            assert grp is not None
             yield Lexeme(grp, s[begin:end], file, line)
         elif grp == 'newline':
             line += 1
