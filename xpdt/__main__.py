@@ -55,7 +55,6 @@ class BackendDef:
 
 class OutputC(BackendDef):
     suffix = '_impl.h'
-    incl = True
     __slots__ = ()
 
     def _gen(self, f: TextIO) -> None:
