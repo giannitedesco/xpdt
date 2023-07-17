@@ -15,6 +15,7 @@ _log.addHandler(_stdio_handler)
 
 class BackendDef:
     suffix: ClassVar[str]
+    incl: ClassVar[bool] = False
 
     __slots__ = (
         '_p',
@@ -29,12 +30,18 @@ class BackendDef:
     def _name(self, base: Path, name: str) -> Path:
         return base / (name + self.suffix)
 
-    def __init__(self, ns: NameSpace, base: Path,
+    def __init__(self,
+                 ns: NameSpace,
+                 base: Path,
+                 inc_base: Optional[Path],
                  inc_prefix: Optional[str] = None) -> None:
         self._ns = ns
         name = ns.name
         assert name is not None
-        self._p = self._name(base, name)
+        if self.incl and inc_base is not None:
+            self._p = self._name(inc_base, name)
+        else:
+            self._p = self._name(base, name)
         self._inc_prefix = inc_prefix
 
     def _gen(self, f: TextIO) -> None:
@@ -48,6 +55,7 @@ class BackendDef:
 
 class OutputC(BackendDef):
     suffix = '_impl.h'
+    incl = True
     __slots__ = ()
 
     def _gen(self, f: TextIO) -> None:
@@ -64,6 +72,7 @@ class OutputCAPI(BackendDef):
 
 class OutputCHdr(BackendDef):
     suffix = '_api.h'
+    incl = True
     __slots__ = ()
 
     def _gen(self, f: TextIO) -> None:
@@ -110,6 +119,9 @@ def main() -> None:
                       default=Path(),
                       type=Path,
                       help='Output dir')
+    opts.add_argument('--inc-dir', '-i',
+                      type=Path,
+                      help='Output dir to write includes')
     opts.add_argument('-I',
                       dest='inc_prefix',
                       help='Include path (for C headers)')
@@ -141,7 +153,7 @@ def main() -> None:
 
     args.out.mkdir(exist_ok=True)
     for cls in file_generators:
-        backend = cls(ns, args.out, args.inc_prefix)
+        backend = cls(ns, args.out, args.inc_dir, args.inc_prefix)
         backend.gen()
 
 
