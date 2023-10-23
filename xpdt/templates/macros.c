@@ -396,7 +396,8 @@ bool /*{wr_sized(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 /*# for path in struct.c_named_initializers_x1v #*/
 
 	str_len = obj./*{path}*/.len;
-	memcpy(buf, obj./*{path}*/.ptr, str_len);
+	if (str_len)
+		memcpy(buf, obj./*{path}*/.ptr, str_len);
 	buf += str_len;
 /*# endfor #*/
 // endif
@@ -451,7 +452,8 @@ bool /*{wr_wrapped(struct)}*/(xostream_t out, const /*{struct.ctype}*/ obj)
 /*# for path in struct.c_named_initializers_x1v #*/
 
 	str_len = obj./*{path}*/.len;
-	memcpy(buf, obj./*{path}*/.ptr, str_len);
+	if (str_len)
+		memcpy(buf, obj./*{path}*/.ptr, str_len);
 	buf += str_len;
 /*# endfor #*/
 // endif
