@@ -87,7 +87,7 @@ class Symbol(NamedTuple):
 
         if has_dashes:
             return cls.from_dashy(s)
-        elif has_unders:
+        elif has_unders and (has_upper ^ has_lower):
             if has_upper:
                 return cls.from_screaming_snake(s)
             else:
@@ -115,11 +115,13 @@ def main() -> None:
         'foo',
         'FOO',
         'Foo',
+        '_FooBar',
+        '_fooBar',
     )
 
     for x in examples:
         s = Symbol.detect(x)
-        print(s.dashy, s.snake, s.screaming_snake, s.pascal, s.camel)
+        print(x, s.dashy, s.snake, s.screaming_snake, s.pascal, s.camel)
 
 
 if __name__ == '__main__':
