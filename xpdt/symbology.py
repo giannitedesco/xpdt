@@ -1,5 +1,7 @@
-from typing import NamedTuple, Generator, Self
+from collections.abc import Sequence
+from dataclasses import dataclass
 from enum import Enum
+from typing import Iterator, ClassVar, Generator, Self, overload
 
 import re
 
@@ -12,12 +14,25 @@ class Case(Enum):
     CAMEL = 'camel'
 
 
-class _Symbol(NamedTuple):
+@dataclass(frozen=True, slots=True)
+class Symbol(Sequence[str]):
     components: tuple[str, ...]
 
+    _camel_re: ClassVar[re.Pattern[str]] = re.compile('(?<=[a-z])(?=[A-Z])')
 
-class Symbol(_Symbol):
-    _camel_re = re.compile('(?<=[a-z])(?=[A-Z])')
+    def __len__(self) -> int:
+        return len(self.components)
+
+    @overload
+    def __getitem__(self, index: int) -> str:
+        ...
+
+    @overload
+    def __getitem__(self, index: slice) -> str:
+        ...
+
+    def __getitem__(self, index: int | slice) -> str | tuple[str, ...]:
+        return self.components[index]
 
     @property
     def dashy(self) -> str:
