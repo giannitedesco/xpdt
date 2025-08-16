@@ -1,4 +1,4 @@
-from typing import Tuple, Type, TypeVar, NamedTuple, Generator
+from typing import NamedTuple, Generator, Self
 from enum import Enum
 
 import re
@@ -12,14 +12,12 @@ class Case(Enum):
     CAMEL = 'camel'
 
 
-T = TypeVar('T', bound='Symbol')
+class _Symbol(NamedTuple):
+    components: tuple[str, ...]
 
 
-_camel_re = re.compile('(?<=[a-z])(?=[A-Z])')
-
-
-class Symbol(NamedTuple):
-    components: Tuple[str, ...]
+class Symbol(_Symbol):
+    _camel_re = re.compile('(?<=[a-z])(?=[A-Z])')
 
     @property
     def dashy(self) -> str:
@@ -48,32 +46,32 @@ class Symbol(NamedTuple):
         return ''.join(gen())
 
     @classmethod
-    def from_dashy(cls: Type[T], s: str) -> T:
+    def from_dashy(cls, s: str) -> Self:
         # TODO: Validate
         return cls(tuple((c.lower() for c in s.split('-'))))
 
     @classmethod
-    def from_snake(cls: Type[T], s: str) -> T:
+    def from_snake(cls, s: str) -> Self:
         # TODO: Validate
         return cls(tuple((c.lower() for c in s.split('_'))))
 
     @classmethod
-    def from_screaming_snake(cls: Type[T], s: str) -> T:
+    def from_screaming_snake(cls, s: str) -> Self:
         # TODO: Validate
         return cls(tuple((c.lower() for c in s.split('_'))))
 
     @classmethod
-    def from_pascal(cls: Type[T], s: str) -> T:
+    def from_pascal(cls, s: str) -> Self:
         # TODO: Validate
-        return cls(tuple((c.lower() for c in _camel_re.split(s))))
+        return cls(tuple((c.lower() for c in cls._camel_re.split(s))))
 
     @classmethod
-    def from_camel(cls: Type[T], s: str) -> T:
+    def from_camel(cls, s: str) -> Self:
         # TODO: Validate
-        return cls(tuple((c.lower() for c in _camel_re.split(s))))
+        return cls(tuple((c.lower() for c in cls._camel_re.split(s))))
 
     @classmethod
-    def detect(cls: Type[T], s: str) -> T:
+    def detect(cls, s: str) -> Self:
         if not s:
             raise ValueError('Cannot have an empty symbol')
 

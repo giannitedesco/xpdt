@@ -11,10 +11,7 @@ mypy \
 	--strict \
 	${pkgname} ${scripts}
 
-flake8 \
+bandit \
 	${pkgname} ${scripts}
-
-pycodestyle-3 \
-	${pkgname}
 
 python -m unittest
