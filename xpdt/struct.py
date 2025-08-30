@@ -1,7 +1,6 @@
-from typing import Tuple, Generator, Iterator, Dict, Optional
+from typing import Generator, Iterator, Optional
 
 from .dupes import dupes
-
 from .type import XpdtType, ConstructAction, ConstructElement
 from .member import MemberDef
 
@@ -22,12 +21,12 @@ class StructDef:
 
     _name: str
     _discr: Optional[int]
-    _membs: Dict[str, MemberDef]
-    _vmembs: Tuple[MemberDef, ...]
+    _membs: dict[str, MemberDef]
+    _vmembs: tuple[MemberDef, ...]
 
     def __init__(self,
                  name: str,
-                 members: Tuple[MemberDef, ...],
+                 members: tuple[MemberDef, ...],
                  discriminant: Optional[int] = None):
         d = dupes((m.name for m in members))
         if d:
@@ -61,7 +60,7 @@ class StructDef:
         yield from (m.typedef.type for m in self)
 
     @property
-    def vbuf_members(self) -> Tuple[MemberDef, ...]:
+    def vbuf_members(self) -> tuple[MemberDef, ...]:
         return self._vmembs
 
     @property
@@ -135,7 +134,7 @@ class StructDef:
                 and elem.member.type.needs_vbuf)
 
     def construct_recursive(self,
-                            path: Tuple[MemberDef, ...] = (),
+                            path: tuple[MemberDef, ...] = (),
                             include_reserved: bool = True,
                             ) -> Generator[ConstructElement, None, None]:
         for m in self:
@@ -226,7 +225,7 @@ class StructType(XpdtType):
         return self._struct.name
 
     def construct_recursive(self,
-                            path: Tuple[MemberDef, ...] = (),
+                            path: tuple[MemberDef, ...] = (),
                             include_reserved: bool = True,
                             ) -> Generator[ConstructElement, None, None]:
         yield from self._struct.construct_recursive(

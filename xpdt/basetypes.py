@@ -1,4 +1,3 @@
-from typing import Dict
 from enum import Enum
 
 from .integraltype import IntegralType
@@ -56,5 +55,5 @@ class BaseType(TypeDef, Enum):
     intstack32 = 'intstack32', IntStack32
 
 
-def base_types() -> Dict[str, TypeDef]:
+def base_types() -> dict[str, TypeDef]:
     return {t.name: t.value for t in BaseType}

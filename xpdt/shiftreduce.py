@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Optional, Callable, Any, TypeVar, Generic, cast
+from typing import Optional, Callable, Any, cast
 from typing_extensions import Protocol
 from functools import wraps
 
@@ -46,41 +46,36 @@ class ParseError(Exception):
         return f'{tok.file}:{tok.line}: at "{tok.val}": {s}'
 
 
-_T = TypeVar('_T')
-
-
-class State(Generic[_T]):
+class State[T]:
     __slots__ = ()
 
-    def on(self: _T, *args: str) -> Callable[..., StateFunc[_T]]:
+    def on(self: T, *args: str) -> Callable[..., StateFunc[T]]:
         raise NotImplementedError
 
-    def default(self: _T) -> Callable[..., StateFunc[_T]]:
+    def default(self: T) -> Callable[..., StateFunc[T]]:
         raise NotImplementedError
 
-    def __call__(self: _T, tok: Token) -> NextState[_T]:
+    def __call__(self: T, tok: Token) -> NextState[T]:
         raise NotImplementedError
 
 
-NextState = Optional[State[_T]]
-StateFunc = Callable[[_T, Token], NextState[_T]]
+type NextState[T] = Optional[State[T]]
+type StateFunc[T] = Callable[[T, Token], NextState[T]]
 
 
-def state(func: Callable[[_T], None]) -> State[_T]:
-    registry: Dict[Any, StateFunc[_T]] = {}
-    dfl: Optional[StateFunc[_T]] = None
+def state[T](func: Callable[[T], None]) -> State[T]:
+    registry: dict[Any, StateFunc[T]] = {}
+    dfl: Optional[StateFunc[T]] = None
 
-    def on(*args: str) -> Callable[..., StateFunc[_T]]:
-        def decorator(func: StateFunc[_T]) -> StateFunc[_T]:
+    def on(*args: str) -> Callable[..., StateFunc[T]]:
+        def decorator(func: StateFunc[T]) -> StateFunc[T]:
             for tok_type in args:
                 registry[tok_type] = func
             return func
         return decorator
 
-    def default() -> Callable[..., StateFunc[_T]]:
-        nonlocal dfl
-
-        def decorator(func: StateFunc[_T]) -> StateFunc[_T]:
+    def default() -> Callable[..., StateFunc[T]]:
+        def decorator(func: StateFunc[T]) -> StateFunc[T]:
             nonlocal dfl
             dfl = func
             return func
@@ -88,9 +83,7 @@ def state(func: Callable[[_T], None]) -> State[_T]:
         return decorator
 
     @wraps(func)
-    def wrapper(self: _T, tok: Token) -> NextState[_T]:
-        nonlocal dfl
-
+    def wrapper(self: T, tok: Token) -> NextState[T]:
         tok_type = tok.tok_type
         try:
             f = registry[tok_type]
@@ -108,4 +101,4 @@ def state(func: Callable[[_T], None]) -> State[_T]:
     wrapper.on = on  # type: ignore
     wrapper.default = default  # type: ignore
 
-    return cast(State[_T], wrapper)
+    return cast(State[T], wrapper)

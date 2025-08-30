@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Optional, TypeVar
+from typing import Any, ClassVar, Optional, Self
 from pathlib import Path
 
 import logging
@@ -10,9 +10,6 @@ _log = logging.getLogger(__package__)
 __all__ = (
     'Registry',
 )
-
-
-_R = TypeVar('_R', bound='Registry')
 
 
 class Registry:
@@ -168,11 +165,11 @@ class Registry:
         return ret
 
     @classmethod
-    def empty(cls: type[_R]) -> _R:
+    def empty(cls) -> Self:
         return cls({})
 
     @classmethod
-    def from_file(cls: type[_R], p: Path) -> _R:
+    def from_file(cls, p: Path) -> Self:
         return cls(toml.load(p))
 
     def save(self, p: Path) -> None:

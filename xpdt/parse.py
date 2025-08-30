@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import NamedTuple, Dict, Generator, List, Optional, Union
+from typing import NamedTuple, Generator, Optional, Union
 from pathlib import Path
 
 from .decl import StructDecl, MemberDecl
@@ -21,7 +21,7 @@ class MemberNameItem(NamedTuple):
 
 
 class NamespaceItem(NamedTuple):
-    ns: Dict[str, StructDecl]
+    ns: dict[str, StructDecl]
 
 
 # These are the stack items for the for LR parser stack
@@ -39,7 +39,7 @@ class Parser:
         '_stack',
     )
 
-    _stack: List[Item]
+    _stack: list[Item]
 
     def __init__(self, toks: Generator[Lexeme, None, None]):
         self._tokens = toks

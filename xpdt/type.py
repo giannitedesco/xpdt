@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Generator, Tuple, TYPE_CHECKING
+from typing import NamedTuple, Generator, TYPE_CHECKING
 from enum import Enum
 from abc import ABC, abstractmethod
 from struct import calcsize
@@ -26,21 +26,21 @@ class ConstructAction(Enum):
 class ConstructElement(NamedTuple):
     action: ConstructAction
     member: MemberDef
-    path: Tuple[MemberDef, ...] = ()
+    path: tuple[MemberDef, ...] = ()
 
     def indent(self, pat: str = '\t', base: int = 0) -> str:
         return pat * (base + len(self.path))
 
     @property
-    def path_names(self) -> Tuple[str, ...]:
+    def path_names(self) -> tuple[str, ...]:
         return tuple((x.name for x in self.path))
 
     @property
-    def full_path(self) -> Tuple[MemberDef, ...]:
+    def full_path(self) -> tuple[MemberDef, ...]:
         return self.path + (self.member, )
 
     @property
-    def full_path_names(self) -> Tuple[str, ...]:
+    def full_path_names(self) -> tuple[str, ...]:
         return tuple((x.name for x in self.full_path))
 
     @property
@@ -92,7 +92,7 @@ class XpdtType(ABC):
         raise NotImplementedError
 
     def construct_recursive(self,
-                            path: Tuple[MemberDef, ...] = (),
+                            path: tuple[MemberDef, ...] = (),
                             include_reserved: bool = True,
                             ) -> Generator[ConstructElement, None, None]:
         # Only relevant for aggregate types

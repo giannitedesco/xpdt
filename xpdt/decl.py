@@ -1,4 +1,4 @@
-from typing import NamedTuple, List, Optional
+from typing import NamedTuple, Optional
 
 __all__ = (
     'MemberDecl',
@@ -13,7 +13,7 @@ class MemberDecl(NamedTuple):
 
 class StructDecl(NamedTuple):
     struct_name: str
-    members: List[MemberDecl]
+    members: list[MemberDecl]
     discriminant: Optional[int] = None
 
     def with_prefix(self, pfx: str) -> 'StructDecl':

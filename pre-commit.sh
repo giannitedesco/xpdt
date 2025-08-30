@@ -15,3 +15,4 @@ bandit \
 	${pkgname} ${scripts}
 
 python -m unittest
+flake8 ${pkgname}

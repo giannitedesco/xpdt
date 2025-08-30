@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import Iterator, ClassVar, Generator, Self, overload
+from typing import ClassVar, Generator, Self, overload
 
 import re
 

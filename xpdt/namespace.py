@@ -1,5 +1,5 @@
 from typing import (
-    Optional, Tuple, Dict, TextIO, Iterable, Iterator, Any
+    Optional, TextIO, Iterable, Iterator, Any
 )
 from types import SimpleNamespace
 
@@ -24,7 +24,7 @@ class NameSpace:
     )
 
     _name: Optional[str]
-    _structs: Dict[str, StructDef]
+    _structs: dict[str, StructDef]
 
     c = ctemplate.get_template('xpdt.c')
     chdr = ctemplate.get_template('apihdr.c')
@@ -32,7 +32,7 @@ class NameSpace:
     python = pytemplate.get_template('xpdt.pyt')
 
     def __init__(self,
-                 structs: Tuple[StructDef, ...],
+                 structs: tuple[StructDef, ...],
                  name: Optional[str] = None):
 
         d = dupes((s.name for s in structs))
@@ -90,7 +90,7 @@ class NameSpace:
         if self._name is not None:
             names.add(self.python_enum_name)
 
-        g: Dict[str, Any] = {}
+        g: dict[str, Any] = {}
         exec(self.python_code, g, g)
         return SimpleNamespace(**{x: g[x] for x in names})
 
