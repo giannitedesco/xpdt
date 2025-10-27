@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xpdt"
+version = "0.3.1"
+description = "eXPeditious Data Transfer"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "GPL-3.0-only" }
+authors = [
+    { name = "Gianni Tedesco", email = "gianni@scaramanga.co.uk" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+    "jinja2",
+    "toml",
+]
+
+[project.urls]
+Homepage = "https://github.com/giannitedesco/xpdt"
+
+[project.scripts]
+xpdt = "xpdt.__main__:main"
+
+[project.optional-dependencies]
+test = ["green", "coverage"]
+
+[tool.setuptools.packages.find]
+include = ["xpdt", "xpdt.templates"]
+namespaces = false
+
+[tool.setuptools.package-data]
+xpdt = ["py.typed"]
+
+[tool.green]
+run-coverage = true
+verbose = 2

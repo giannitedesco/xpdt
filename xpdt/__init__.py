@@ -2,16 +2,6 @@
 xpdt: eXPeditious Data Transfer
 """
 
-from .__version__ import \
-    __title__, \
-    __description__, \
-    __url__, \
-    __author__, \
-    __author_email__, \
-    __copyright__, \
-    __license__, \
-    __version__  # noqa: F401
-
 from .type import XpdtType
 from .typedef import TypeDef
 from .basetypes import BaseType, base_types
