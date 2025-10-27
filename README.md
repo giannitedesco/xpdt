@@ -7,13 +7,14 @@
 ## About
 xpdt is (yet another) language for defining data-types and generating code for
 serializing and deserializing them. It aims to produce code with little or no
-overhead and is based on fixed-length representations which allows for
-zero-copy deserialization and (at-most-)one-copy writes (source to buffer).
+overhead, especially in the case where some fields aren't required, and is
+based on fixed-length representations allowing for branch-free zero-copy
+deserialization and (at-most-)one-copy writes (source to buffer).
 
 The generated C code, in particular, is highly optimized and often permits the
 elimination of data-copying for writes and enables optimizations such as
-loop-unrolling for fixed-length objects. This can lead to read speeds in
-excess of 500 million objects per second (~1.8 nsec per object).
+loop-unrolling when deserializing fixed-length objects. This can lead to read
+speeds in excess of 500 million objects per second (~1.8 nsec per object).
 
 ## Examples
 The xpdt source language looks similar to C struct definitions:
@@ -62,12 +63,15 @@ avoid the creation/destruction of an object for each record.
 Target languages are implemented purely as `jinja2` templates.
 
 ## Serialization format
-The serialization format for fixed-length objects is simply a packed C struct.
+The serialization format for fixed-length objects is simply a packed C struct,
+with little-endian fields.
 
-For any object which contains `bytes` type fields:
-- a 32bit unsigned record length is prepended to the struct
-- all `bytes` type fields are converted to `u32` and contain the length of the bytes
-- all bytes contents are appended after the struct in the order in which they appear
+For any object which contains variable length fields (eg. `bytes` or `utf8`):
+- a 32bit unsigned record length is prepended to the struct, this allows
+  efficient skipping of the whole record
+- all variable-length fields are converted to `u32` and contain the length, in bytes, of the data
+- all variable-length contents are appended after the struct in the order in
+  which they appear
 
 For example, following the example above, the serialization would be:
 
@@ -88,6 +92,21 @@ u8 'l'
 u8 'l'
 u8 'o'
 ```
+
+### Why Variable-Length Data at the End?
+
+Placing variable-length fields at the end of the struct provides significant
+performance benefits:
+
+1. xpdt is optimized for fast zero-copy deserialization, it especially tries to
+   avoid adding overhead in the case where only a subset of fields are
+   required. If variable length fields could come in the middle of a struct,
+   reading the length and skipping the field would incur a cost even when the
+   field is being skipped.
+2. Potentially large strings and payloads isolated: Only when the
+   variable-length field is needed do you pay the cost of calculating their
+   offsets. This is ideal for descriptive strings or optional metadata that is
+   rarely accessed.
 
 ## Features
 The feature-set is, as of now, pretty slim.
