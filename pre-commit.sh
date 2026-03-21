@@ -9,6 +9,8 @@ scripts=
 
 mypy \
 	--strict \
+	--install-types \
+	--non-interactive \
 	${pkgname} ${scripts}
 
 bandit \
