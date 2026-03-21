@@ -14,12 +14,13 @@ $$namespace.python_type_name$$
 
 ## import 'fixed.pyt' as x1b
 ## import 'vbuf.pyt' as x1v
-from struct import Struct as _Struct
-from pathlib import Path as _Path
+from collections.abc import Buffer as _B
 from mmap import (
     mmap as _mmap,
     PROT_READ as _PROT_READ,
 )
+from pathlib import Path as _Path
+from struct import Struct as _Struct
 from typing import (
     NamedTuple as _NTup,
     Generator as _G,
@@ -143,7 +144,7 @@ class $$basetype()$$:
     def _len_unwrap(cls: _Typ[_T],
                     buf: memoryview,
                     off: int = 0,
-                    _unp: _F[[bytes, int], _Tup[int, ...]] = _vlen_unpack_from,
+                    _unp: _F[[_B, int], _Tup[int, ...]] = _vlen_unpack_from,
                     _hdr_len: int = _vlen_size,
                     ) -> _Tup[int, _T]:
         tot_len, = _unp(buf, off)
@@ -188,7 +189,7 @@ $$x1b.write_methods(struct)$$
     def _frombuf(cls: _Typ[_T],
                  buf: memoryview,
                  off: int = 0,
-                 _unp: _F[[bytes, int], _Tup[int, ...]] = _unpack_from,
+                 _unp: _F[[_B, int], _Tup[int, ...]] = _unpack_from,
                  ) -> _T:
         return cls(*_unp(buf, off))
 
@@ -199,7 +200,7 @@ $$x1b.write_methods(struct)$$
     def _read_many(cls: _Typ[_T],
                    buf: memoryview,
                    rec_len: int = _fmt_size,
-                   unpack: _F[[bytes, int], _Tup[int, ...]] = _unpack_from,
+                   unpack: _F[[_B, int], _Tup[int, ...]] = _unpack_from,
                    ) -> _G[_T, None, None]:
         off = 0
         tot_len = len(buf)
@@ -262,7 +263,7 @@ class $$enumclass()$$:
     @classmethod
     def read_many(cls,
                   buf: memoryview,
-                  _unp: _F[[bytes, int], _Tup[int, ...]] = _enum_unpack_from,
+                  _unp: _F[[_B, int], _Tup[int, ...]] = _enum_unpack_from,
                   _hdr_len: int = _enum_size,
                   _clsmap: _M[int, _Typ[$$basetype()$$]] = structs,
                   ) -> _G[_U[_Tup[int, $$basetype()$$], Exception], None, None]:

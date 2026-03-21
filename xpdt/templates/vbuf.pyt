@@ -98,7 +98,7 @@ $$e.indent('    ', 3)$$$$construct_object(e, vbuf_var)$$
     def _read(cls: _Typ[_T],
               buf: memoryview,
               off: int = 0,
-              _unp: _F[[bytes, int], _Tup[int, ...]] = _vlen_unpack_from,
+              _unp: _F[[_B, int], _Tup[int, ...]] = _vlen_unpack_from,
               _hdr_len: int = _vlen_size,
               _frombuf: _F[[_Typ[_T], memoryview], _T] = (
                   getattr(_frombuf, '__func__')
@@ -111,7 +111,7 @@ $$e.indent('    ', 3)$$$$construct_object(e, vbuf_var)$$
     @classmethod
     def _read_many(cls: _Typ[_T],
                    buf: memoryview,
-                   _unp: _F[[bytes, int], _Tup[int, ...]] = _vlen_unpack_from,
+                   _unp: _F[[_B, int], _Tup[int, ...]] = _vlen_unpack_from,
                    _hdr_len: int = _vlen_size,
                    _frombuf: _F[[_Typ[_T], memoryview, int], _T] = (
                        getattr(_frombuf, '__func__')
