@@ -2,7 +2,9 @@ from typing import Any, ClassVar, Optional, Self
 from pathlib import Path
 
 import logging
-import toml
+
+import tomllib
+import tomli_w
 
 _log = logging.getLogger(__package__)
 
@@ -170,10 +172,11 @@ class Registry:
 
     @classmethod
     def from_file(cls, p: Path) -> Self:
-        return cls(toml.load(p))
+        with p.open('rb') as f:
+            return cls(tomllib.load(f))
 
     def save(self, p: Path) -> None:
         if self._dirty:
-            with p.open('w') as f:
-                toml.dump(self._reg, f)
+            with p.open('wb') as f:
+                tomli_w.dump(self._reg, f)
             self._dirty = False

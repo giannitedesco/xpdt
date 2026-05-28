@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "jinja2",
-    "toml",
+    "tomli-w",
 ]
 
 [project.urls]
