@@ -18,4 +18,4 @@ bandit \
 
 flake8 ${pkgname}
 
-green
+nose2
